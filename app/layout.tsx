@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "WarungKu - Kasir Suara",
+  title: "Katalis AI - Kasir Suara",
   description: "Aplikasi kasir berbasis suara untuk UMKM Indonesia",
 };
 
