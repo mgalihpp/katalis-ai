@@ -117,8 +117,6 @@ export function useFirestoreSync() {
                         appIcon: settings.appIcon as 'store' | 'coffee' | 'shopping-bag' | 'utensils' | 'building',
                     });
                 }
-
-                console.log('[FirestoreSync] Initial data loaded from Firestore');
                 isSyncingFromFirestoreRef.current = false;
             } catch (error) {
                 console.error('[FirestoreSync] Failed to load initial data:', error);
@@ -133,7 +131,6 @@ export function useFirestoreSync() {
                 if (isSyncingToFirestoreRef.current) return; // Prevent echo from our own writes
                 if (arraysEqual(transactions, lastKnownStateRef.current.transactions)) return;
 
-                console.log('[FirestoreSync] Transactions updated from Firestore');
                 lastKnownStateRef.current.transactions = transactions;
                 isSyncingFromFirestoreRef.current = true;
                 useTransactionStore.setState({ transactions });
@@ -144,7 +141,6 @@ export function useFirestoreSync() {
                 if (isSyncingToFirestoreRef.current) return;
                 if (arraysEqual(debts, lastKnownStateRef.current.debts)) return;
 
-                console.log('[FirestoreSync] Debts updated from Firestore');
                 lastKnownStateRef.current.debts = debts;
                 isSyncingFromFirestoreRef.current = true;
                 useTransactionStore.setState({ debts });
@@ -155,7 +151,6 @@ export function useFirestoreSync() {
                 if (isSyncingToFirestoreRef.current) return;
                 if (arraysEqual(stocks, lastKnownStateRef.current.stocks)) return;
 
-                console.log('[FirestoreSync] Stocks updated from Firestore');
                 lastKnownStateRef.current.stocks = stocks;
                 isSyncingFromFirestoreRef.current = true;
                 useStockStore.setState({ stocks });
@@ -166,7 +161,6 @@ export function useFirestoreSync() {
                 if (isSyncingToFirestoreRef.current) return;
                 if (arraysEqual(movements, lastKnownStateRef.current.movements)) return;
 
-                console.log('[FirestoreSync] Stock movements updated from Firestore');
                 lastKnownStateRef.current.movements = movements;
                 isSyncingFromFirestoreRef.current = true;
                 useStockStore.setState({ movements });
@@ -176,7 +170,6 @@ export function useFirestoreSync() {
             const unsubSettings = subscribeToUserSettings(userId, (settings) => {
                 if (isSyncingToFirestoreRef.current || !settings) return;
 
-                console.log('[FirestoreSync] Settings updated from Firestore');
                 isSyncingFromFirestoreRef.current = true;
                 useSettingsStore.setState({
                     targetAmount: settings.targetAmount,
@@ -196,7 +189,8 @@ export function useFirestoreSync() {
 
         // ==================== LOCAL → FIRESTORE (Debounced writes) ====================
         const syncTransactionsToFirestore = debounce(async () => {
-            if (isSyncingFromFirestoreRef.current) return;
+            // Skip if not initialized (user logged out) or syncing from Firestore
+            if (!isInitializedRef.current || isSyncingFromFirestoreRef.current) return;
 
             const state = useTransactionStore.getState();
 
@@ -214,16 +208,18 @@ export function useFirestoreSync() {
                 });
                 lastKnownStateRef.current.transactions = state.transactions;
                 lastKnownStateRef.current.debts = state.debts;
-                console.log('[FirestoreSync] Transactions synced to Firestore (with deletions)');
-            } catch (error) {
-                console.error('[FirestoreSync] Failed to sync transactions:', error);
+            } catch (error: unknown) {
+                // Silently ignore permission-denied errors (happens during logout)
+                if (error instanceof Error && 'code' in error && (error as { code: string }).code !== 'permission-denied') {
+                    console.error('[FirestoreSync] Failed to sync transactions:', error);
+                }
             } finally {
                 setTimeout(() => { isSyncingToFirestoreRef.current = false; }, 100);
             }
         }, 1500);
 
         const syncStocksToFirestore = debounce(async () => {
-            if (isSyncingFromFirestoreRef.current) return;
+            if (!isInitializedRef.current || isSyncingFromFirestoreRef.current) return;
 
             const state = useStockStore.getState();
 
@@ -240,16 +236,17 @@ export function useFirestoreSync() {
                 });
                 lastKnownStateRef.current.stocks = state.stocks;
                 lastKnownStateRef.current.movements = state.movements;
-                console.log('[FirestoreSync] Stocks synced to Firestore (with deletions)');
-            } catch (error) {
-                console.error('[FirestoreSync] Failed to sync stocks:', error);
+            } catch (error: unknown) {
+                if (error instanceof Error && 'code' in error && (error as { code: string }).code !== 'permission-denied') {
+                    console.error('[FirestoreSync] Failed to sync stocks:', error);
+                }
             } finally {
                 setTimeout(() => { isSyncingToFirestoreRef.current = false; }, 100);
             }
         }, 1500);
 
         const syncSettingsToFirestore = debounce(async () => {
-            if (isSyncingFromFirestoreRef.current) return;
+            if (!isInitializedRef.current || isSyncingFromFirestoreRef.current) return;
 
             const settingsState = useSettingsStore.getState();
             const userState = useUserStore.getState();
@@ -264,9 +261,10 @@ export function useFirestoreSync() {
                     profileImage: userState.profileImage,
                     appIcon: userState.appIcon,
                 });
-                console.log('[FirestoreSync] Settings synced to Firestore');
-            } catch (error) {
-                console.error('[FirestoreSync] Failed to sync settings:', error);
+            } catch (error: unknown) {
+                if (error instanceof Error && 'code' in error && (error as { code: string }).code !== 'permission-denied') {
+                    console.error('[FirestoreSync] Failed to sync settings:', error);
+                }
             } finally {
                 setTimeout(() => { isSyncingToFirestoreRef.current = false; }, 100);
             }

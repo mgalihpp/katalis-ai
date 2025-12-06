@@ -56,6 +56,11 @@ export const subscribeToTransactions = (
     return onSnapshot(q, (snapshot) => {
         const transactions = snapshot.docs.map(doc => doc.data() as Transaction);
         callback(transactions);
+    }, (error) => {
+        // Silently ignore permission-denied errors during logout
+        if (error.code !== 'permission-denied') {
+            console.error('[Firestore] Transaction subscription error:', error);
+        }
     });
 };
 
@@ -90,6 +95,10 @@ export const subscribeToDebts = (
     return onSnapshot(q, (snapshot) => {
         const debts = snapshot.docs.map(doc => doc.data() as Debt);
         callback(debts);
+    }, (error) => {
+        if (error.code !== 'permission-denied') {
+            console.error('[Firestore] Debts subscription error:', error);
+        }
     });
 };
 
@@ -122,6 +131,10 @@ export const subscribeToStocks = (
     return onSnapshot(getUserCollection(userId, 'stocks'), (snapshot) => {
         const stocks = snapshot.docs.map(doc => doc.data() as StockItem);
         callback(stocks);
+    }, (error) => {
+        if (error.code !== 'permission-denied') {
+            console.error('[Firestore] Stocks subscription error:', error);
+        }
     });
 };
 
@@ -146,6 +159,10 @@ export const subscribeToStockMovements = (
     return onSnapshot(q, (snapshot) => {
         const movements = snapshot.docs.map(doc => doc.data() as StockMovement);
         callback(movements);
+    }, (error) => {
+        if (error.code !== 'permission-denied') {
+            console.error('[Firestore] Stock movements subscription error:', error);
+        }
     });
 };
 
@@ -178,6 +195,10 @@ export const subscribeToUserSettings = (
     const docRef = getUserSettingsDoc(userId);
     return onSnapshot(docRef, (snapshot) => {
         callback(snapshot.exists() ? (snapshot.data() as UserSettings) : null);
+    }, (error) => {
+        if (error.code !== 'permission-denied') {
+            console.error('[Firestore] Settings subscription error:', error);
+        }
     });
 };
 
@@ -285,6 +306,6 @@ export const syncAllWithDeletion = async (
         data.movements ? syncMovementsWithDeletion(userId, data.movements) : null,
     ]);
 
-    console.log('[Firestore] Sync complete:', results);
+    return results;
 };
 
