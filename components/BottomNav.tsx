@@ -1,8 +1,9 @@
-import { Home, HandCoins, BarChart3, Package, Mic, Loader2 } from 'lucide-react';
+import { Home, HandCoins, BarChart3, Package, Mic, Loader2, Square } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useVoice } from '@/context/VoiceContext';
 import { usePathname, useRouter } from 'next/navigation';
 import { createRippleEffect } from '@/hooks/useRipple';
+import { useRef, useCallback, useEffect } from 'react';
 
 const navItems = [
   { path: '/dashboard', icon: Home, label: 'Beranda' },
@@ -12,10 +13,124 @@ const navItems = [
   { path: '/dashboard/ringkasan', icon: BarChart3, label: 'Ringkasan' },
 ];
 
+// Threshold to differentiate tap vs hold (in ms)
+const TAP_THRESHOLD = 300;
+const MIN_RECORDING_MS = 500;
+
 export function BottomNav() {
   const router = useRouter();
   const pathname = usePathname();
   const { isRecording, isProcessing, handleVoicePress, handleVoiceRelease } = useVoice();
+
+  // Track touch vs mouse
+  const isTouchDevice = useRef(false);
+  // Track press start time
+  const pressStartTime = useRef<number>(0);
+  // Track if we started recording
+  const hasStartedRecording = useRef(false);
+  // Track if in hold mode
+  const isHoldMode = useRef(false);
+
+  const handleStart = useCallback(() => {
+    if (isProcessing) return;
+
+    // If already recording (tap mode), this tap should stop
+    if (isRecording) {
+      hasStartedRecording.current = false;
+      isHoldMode.current = false;
+      handleVoiceRelease();
+      return;
+    }
+
+    // Start new recording
+    pressStartTime.current = Date.now();
+    hasStartedRecording.current = true;
+    isHoldMode.current = false;
+    handleVoicePress();
+  }, [isProcessing, isRecording, handleVoicePress, handleVoiceRelease]);
+
+  const handleEnd = useCallback(() => {
+    if (!hasStartedRecording.current || !isRecording) return;
+
+    const pressDuration = Date.now() - pressStartTime.current;
+
+    // If held long enough, treat as hold-to-record (stop immediately)
+    if (pressDuration >= TAP_THRESHOLD) {
+      if (pressDuration < MIN_RECORDING_MS) {
+        setTimeout(() => {
+          hasStartedRecording.current = false;
+          handleVoiceRelease();
+        }, MIN_RECORDING_MS - pressDuration);
+      } else {
+        hasStartedRecording.current = false;
+        handleVoiceRelease();
+      }
+    }
+    // Short tap - keep recording until next tap (toggle mode)
+  }, [isRecording, handleVoiceRelease]);
+
+  // Mouse handlers
+  const handleMouseDown = useCallback(() => {
+    if (isTouchDevice.current) return;
+    handleStart();
+  }, [handleStart]);
+
+  const handleMouseUp = useCallback(() => {
+    if (isTouchDevice.current) return;
+    handleEnd();
+  }, [handleEnd]);
+
+  const handleMouseLeave = useCallback(() => {
+    if (isTouchDevice.current) return;
+    if (hasStartedRecording.current && isHoldMode.current) {
+      handleEnd();
+    }
+  }, [handleEnd]);
+
+  // Touch handlers
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    isTouchDevice.current = true;
+    handleStart();
+  }, [handleStart]);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleEnd();
+  }, [handleEnd]);
+
+  const handleTouchCancel = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (hasStartedRecording.current) {
+      hasStartedRecording.current = false;
+      handleVoiceRelease();
+    }
+  }, [handleVoiceRelease]);
+
+  // Reset touch device flag
+  useEffect(() => {
+    if (isTouchDevice.current) {
+      const timer = setTimeout(() => {
+        isTouchDevice.current = false;
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isRecording]);
+
+  // Prevent context menu
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+  }, []);
+
+  // Get voice button label
+  const getVoiceLabel = () => {
+    if (isProcessing) return 'Proses...';
+    if (isRecording) return 'Stop';
+    return 'Suara';
+  };
 
   return (
     <nav className="fixed bg-transparent bottom-0 left-0 right-0 z-50">
@@ -24,52 +139,42 @@ export function BottomNav() {
           {navItems.map((item) => {
             if (item.isVoice) {
               return (
-                <div key="voice" className="flex flex-col items-center -mt-8">
+                <div key="voice" className="flex flex-col items-center -mt-8 select-none">
                   <button
                     className={cn(
-                      'w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-all duration-200',
+                      'w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 touch-none relative',
                       'bg-primary hover:bg-primary/90',
-                      isRecording && 'bg-accent animate-pulse scale-110',
+                      isRecording && 'bg-accent scale-110',
                       isProcessing && 'bg-muted'
                     )}
-                    onMouseDown={handleVoicePress}
-                    onMouseUp={handleVoiceRelease}
-                    onMouseLeave={() => isRecording && handleVoiceRelease()}
-                    onTouchStart={(e) => {
-                      e.preventDefault();
-                      handleVoicePress();
-                    }}
-                    onTouchEnd={(e) => {
-                      e.preventDefault();
-                      handleVoiceRelease();
-                    }}
+                    onMouseDown={handleMouseDown}
+                    onMouseUp={handleMouseUp}
+                    onMouseLeave={handleMouseLeave}
+                    onTouchStart={handleTouchStart}
+                    onTouchEnd={handleTouchEnd}
+                    onTouchCancel={handleTouchCancel}
+                    onContextMenu={handleContextMenu}
                     disabled={isProcessing}
                     aria-label={isRecording ? 'Sedang merekam' : 'Tekan untuk bicara'}
                   >
                     {isProcessing ? (
                       <Loader2 className="w-7 h-7 text-primary-foreground animate-spin" />
                     ) : isRecording ? (
-                      <div className="flex items-center justify-center gap-0.5">
-                        {[...Array(3)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="w-1 bg-primary-foreground rounded-full animate-pulse"
-                            style={{
-                              height: `${12 + Math.random() * 8}px`,
-                              animationDelay: `${i * 0.15}s`
-                            }}
-                          />
-                        ))}
-                      </div>
+                      <Square className="w-6 h-6 text-primary-foreground fill-current" />
                     ) : (
                       <Mic className="w-7 h-7 text-primary-foreground" />
+                    )}
+
+                    {/* Recording pulse indicator */}
+                    {isRecording && (
+                      <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
                     )}
                   </button>
                   <span className={cn(
                     'text-xs font-medium mt-1',
                     isRecording ? 'text-accent' : 'text-muted-foreground'
                   )}>
-                    {isProcessing ? 'Proses...' : isRecording ? 'Lepas' : 'Suara'}
+                    {getVoiceLabel()}
                   </span>
                 </div>
               );

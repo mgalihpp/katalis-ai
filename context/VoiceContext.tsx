@@ -25,6 +25,30 @@ const VoiceContext = createContext<VoiceContextType | null>(null);
 // Minimum audio size in bytes (skip if too small - likely empty/silent)
 const MIN_AUDIO_SIZE = 1000; // ~1KB
 
+// Get file extension from MIME type
+function getExtensionFromMimeType(mimeType: string): string {
+  const extensionMap: Record<string, string> = {
+    'audio/webm': 'webm',
+    'audio/webm;codecs=opus': 'webm',
+    'audio/ogg': 'ogg',
+    'audio/ogg;codecs=opus': 'ogg',
+    'audio/mp4': 'mp4',
+    'audio/x-m4a': 'm4a',
+    'audio/aac': 'aac',
+    'audio/mpeg': 'mp3',
+    'audio/wav': 'wav',
+  };
+
+  // Check for exact match first, then partial match
+  if (extensionMap[mimeType]) {
+    return extensionMap[mimeType];
+  }
+
+  // Handle cases like 'audio/mp4; codecs=...'
+  const baseMimeType = mimeType.split(';')[0].trim();
+  return extensionMap[baseMimeType] || 'webm';
+}
+
 // Process voice via OpenAI API
 async function processVoice(audioBlob: Blob): Promise<{ transcript: string; parsed: ParsedVoiceResult }> {
   // Check if audio is too small (likely empty/silent recording)
@@ -32,8 +56,12 @@ async function processVoice(audioBlob: Blob): Promise<{ transcript: string; pars
     throw new Error('Rekaman terlalu pendek. Tekan dan tahan lebih lama saat bicara.');
   }
 
+  // Get the correct file extension based on the blob's MIME type
+  const extension = getExtensionFromMimeType(audioBlob.type);
+  const filename = `audio.${extension}`;
+
   const formData = new FormData();
-  formData.append('audio', audioBlob, 'audio.webm');
+  formData.append('audio', audioBlob, filename);
 
   const response = await fetch('/api/voice', {
     method: 'POST',

@@ -27,12 +27,17 @@ export async function POST(request: NextRequest) {
             'audio/ogg': 'ogg',
             'audio/ogg;codecs=opus': 'ogg',
             'audio/mp4': 'mp4',
+            'audio/x-m4a': 'm4a',
+            'audio/m4a': 'm4a',
+            'audio/aac': 'aac',
             'audio/mpeg': 'mp3',
             'audio/wav': 'wav',
+            'audio/flac': 'flac',
         };
-        const extension = extensionMap[mimeType] || 'webm';
 
-        console.log('Received audio MIME type:', mimeType, '-> extension:', extension);
+        // Handle MIME types with codec suffixes
+        const baseMimeType = mimeType.split(';')[0].trim();
+        const extension = extensionMap[mimeType] || extensionMap[baseMimeType] || 'webm';
 
         // Use toFile helper to create proper file for OpenAI Whisper
         const file = await toFile(audioBuffer, `recording.${extension}`, { type: mimeType });

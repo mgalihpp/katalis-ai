@@ -14,10 +14,7 @@ export const ourFileRouter = {
             // which are protected by AuthContext in the dashboard layout
             return { uploadedAt: new Date().toISOString() };
         })
-        .onUploadComplete(async ({ metadata, file }) => {
-            console.log('Upload complete at:', metadata.uploadedAt);
-            console.log('file url', file.ufsUrl);
-
+        .onUploadComplete(async ({ file }) => {
             // Return the file URL to use
             return { url: file.ufsUrl };
         }),

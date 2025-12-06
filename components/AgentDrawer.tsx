@@ -61,19 +61,17 @@ export function AgentDrawer({ isOpen, onClose }: AgentDrawerProps) {
       const functionName = toolCall.function.name;
       const args = JSON.parse(toolCall.function.arguments);
 
-      console.log('Executing tool:', functionName, args);
-
       try {
         if (functionName === 'check_stock') {
           const stock = stockStore.getStockByName(args.item_name);
           return JSON.stringify(
             stock
               ? {
-                  name: stock.name,
-                  quantity: stock.quantity,
-                  unit: stock.unit,
-                  price: stock.sell_price,
-                }
+                name: stock.name,
+                quantity: stock.quantity,
+                unit: stock.unit,
+                price: stock.sell_price,
+              }
               : { status: 'stok tidak ditemukan', item: args.item_name }
           );
         }
@@ -295,7 +293,6 @@ export function AgentDrawer({ isOpen, onClose }: AgentDrawerProps) {
 
         // Skip if message is empty (no content and no tool calls)
         if (!accumulatedContent && accumulatedToolCalls.length === 0) {
-          console.log('Empty response from AI, showing fallback message');
 
           // Add fallback message
           const fallbackMessage: Message = {

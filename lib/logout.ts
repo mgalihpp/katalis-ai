@@ -34,6 +34,4 @@ export const logoutAndClearData = async () => {
         localStorage.removeItem('Katalis AI-settings');
         localStorage.removeItem('Katalis AI-user');
     }
-
-    console.log('[Logout] All local data cleared');
 };
