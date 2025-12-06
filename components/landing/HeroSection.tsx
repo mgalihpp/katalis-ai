@@ -44,6 +44,7 @@ export function HeroSection() {
             <FloatingIcon icon={HandCoins} className="bottom-1/3 left-[15%]" delay="1s" />
             <FloatingIcon icon={Camera} className="bottom-1/4 right-[10%]" delay="1.5s" />
             <FloatingIcon icon={Bot} className="top-[45%] right-[8%]" delay="2s" />
+            <FloatingIcon icon={Mic} className="top-[20%] left-[20%]" delay="0.3s" />
 
             {/* Content */}
             <div className="relative z-10 max-w-7xl mx-auto px-5 sm:px-6 text-center">
@@ -65,17 +66,23 @@ export function HeroSection() {
                     Cukup bicara, AI kami akan mencatat transaksi, stok, dan hutang secara otomatis.
                 </p>
 
-                {/* Microphone Button with Wave Animation */}
+                {/* Wave Animation */}
                 <div className="mb-6 sm:mb-8">
-                    <div className="relative inline-block">
-                        {/* Outer Ring Animation */}
-                        <div className="absolute inset-0 rounded-full bg-primary/20 animate-ping" style={{ animationDuration: '2s' }} />
-                        <div className="absolute -inset-3 rounded-full bg-primary/10 animate-pulse" />
-
-                        {/* Microphone Button */}
-                        <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-2xl shadow-primary/40 cursor-pointer hover:scale-105 transition-transform">
-                            <Mic className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
-                        </div>
+                    <div className="flex items-end justify-center gap-1 h-12 sm:h-14">
+                        {/* Wave Bars with gradient effect */}
+                        {[0.6, 0.8, 1, 0.8, 0.6].map((scale, index) => (
+                            <div
+                                key={index}
+                                className="w-1.5 sm:w-2 rounded-full"
+                                style={{
+                                    height: `${scale * 100}%`,
+                                    background: 'linear-gradient(to top, hsl(var(--primary)), hsl(160, 84%, 45%))',
+                                    boxShadow: '0 0 12px hsl(var(--primary) / 0.5)',
+                                    animation: 'wave 1.2s ease-in-out infinite',
+                                    animationDelay: `${index * 0.15}s`
+                                }}
+                            />
+                        ))}
                     </div>
                 </div>
 
