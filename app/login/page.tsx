@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
@@ -24,6 +26,7 @@ export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [agreedToTerms, setAgreedToTerms] = useState(false);
 
     useEffect(() => {
         if (!authLoading && user) {
@@ -32,6 +35,10 @@ export default function LoginPage() {
     }, [user, authLoading, router]);
 
     const handleGoogleLogin = async () => {
+        if (!agreedToTerms) {
+            setError('Anda harus menyetujui Kebijakan Privasi dan Syarat & Ketentuan.');
+            return;
+        }
         setLoading(true);
         setError('');
         try {
@@ -47,6 +54,12 @@ export default function LoginPage() {
 
     const handleEmailAuth = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        if (!agreedToTerms) {
+            setError('Anda harus menyetujui Kebijakan Privasi dan Syarat & Ketentuan.');
+            return;
+        }
+
         setLoading(true);
         setError('');
 
@@ -157,7 +170,32 @@ export default function LoginPage() {
                                 />
                             </div>
                         )}
-                        <Button type="submit" disabled={loading} className="w-full">
+
+                        {/* Terms Checkbox */}
+                        <div className="flex items-start space-x-3 py-2">
+                            <Checkbox
+                                id="terms"
+                                checked={agreedToTerms}
+                                onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                                disabled={loading}
+                                className="mt-0.5"
+                            />
+                            <label
+                                htmlFor="terms"
+                                className="text-sm text-muted-foreground leading-relaxed cursor-pointer"
+                            >
+                                Saya telah membaca dan menyetujui{' '}
+                                <Link href="/privacy" target="_blank" className="text-primary hover:underline font-medium">
+                                    Kebijakan Privasi
+                                </Link>
+                                {' '}dan{' '}
+                                <Link href="/terms" target="_blank" className="text-primary hover:underline font-medium">
+                                    Syarat & Ketentuan
+                                </Link>
+                            </label>
+                        </div>
+
+                        <Button type="submit" disabled={loading || !agreedToTerms} className="w-full">
                             {loading ? (
                                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             ) : null}
@@ -174,7 +212,7 @@ export default function LoginPage() {
                         </div>
                     </div>
 
-                    <Button variant="outline" onClick={handleGoogleLogin} disabled={loading} className="w-full">
+                    <Button variant="outline" onClick={handleGoogleLogin} disabled={loading || !agreedToTerms} className="w-full">
                         {loading ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
@@ -201,11 +239,9 @@ export default function LoginPage() {
                             {isSignUp ? 'Masuk' : 'Daftar'}
                         </button>
                     </p>
-                    <p className="text-muted-foreground">
-                        Dengan melanjutkan, Anda menyetujui Syarat dan Ketentuan layanan kami.
-                    </p>
                 </CardFooter>
             </Card>
         </div>
     );
 }
+
