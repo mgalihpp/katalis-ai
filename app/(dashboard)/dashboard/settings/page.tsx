@@ -21,6 +21,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { useUserStore, AppIconType } from '@/store/useUserStore';
 import { logoutAndClearData } from '@/lib/logout';
@@ -411,6 +412,22 @@ export default function SettingsPage() {
               <p className="text-xs text-muted-foreground text-center">
                 Katalis AI - Aplikasi Kasir Berbasis Suara untuk UMKM Indonesia
               </p>
+            </div>
+            <Separator />
+            <div className="flex items-center justify-center gap-4 pt-2">
+              <Link
+                href="/terms"
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+              >
+                Syarat & Ketentuan
+              </Link>
+              <span className="text-muted-foreground">-</span>
+              <Link
+                href="/privacy"
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+              >
+                Kebijakan Privasi
+              </Link>
             </div>
           </div>
         </section>
