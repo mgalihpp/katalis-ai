@@ -1,8 +1,6 @@
-"use client";
+'use client';
 
 import {
-  Loader2,
-  CheckCircle2,
   XCircle,
   Mic,
   Banknote,
@@ -11,7 +9,6 @@ import {
   Wallet,
   Package,
   RotateCcw,
-  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ParsedVoiceResult } from '@/types';
@@ -101,8 +98,12 @@ export function ProcessingModal({
                 </div>
                 <div className="absolute inset-0 w-20 h-20 rounded-full border-2 border-primary border-t-transparent animate-spin" />
               </div>
-              <DrawerTitle className="text-lg font-semibold text-foreground mt-6">Memproses suara...</DrawerTitle>
-              <p className="text-sm text-muted-foreground mt-1">Tunggu sebentar ya</p>
+              <DrawerTitle className="text-lg font-semibold text-foreground mt-6">
+                Memproses suara...
+              </DrawerTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                Tunggu sebentar ya
+              </p>
             </div>
           )}
 
@@ -112,8 +113,12 @@ export function ProcessingModal({
               <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4">
                 <XCircle className="w-8 h-8 text-destructive" />
               </div>
-              <DrawerTitle className="text-lg font-semibold text-foreground">Gagal Memproses</DrawerTitle>
-              <p className="text-sm text-muted-foreground text-center mt-2 mb-6 max-w-xs">{error}</p>
+              <DrawerTitle className="text-lg font-semibold text-foreground">
+                Gagal Memproses
+              </DrawerTitle>
+              <p className="text-sm text-muted-foreground text-center mt-2 mb-6 max-w-xs">
+                {error}
+              </p>
 
               <div className="flex gap-3 w-full max-w-xs">
                 <button
@@ -121,7 +126,6 @@ export function ProcessingModal({
                   onMouseDown={createRippleEffect}
                   className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-muted text-muted-foreground rounded-xl font-medium ripple"
                 >
-                  <X className="w-4 h-4" />
                   Batal
                 </button>
                 <button
@@ -142,13 +146,22 @@ export function ProcessingModal({
               <DrawerHeader>
                 <div className="flex text-left items-center gap-3">
                   {TypeIcon && (
-                    <div className={cn('w-12 h-12 rounded-2xl flex items-center justify-center', config?.bg)}>
+                    <div
+                      className={cn(
+                        'w-12 h-12 rounded-2xl flex items-center justify-center',
+                        config?.bg
+                      )}
+                    >
                       <TypeIcon className={cn('w-6 h-6', config?.color)} />
                     </div>
                   )}
                   <div>
-                    <DrawerTitle className="text-lg">{config?.label}</DrawerTitle>
-                    <p className="text-sm text-muted-foreground">Konfirmasi transaksi</p>
+                    <DrawerTitle className="text-lg">
+                      {config?.label}
+                    </DrawerTitle>
+                    <p className="text-sm text-muted-foreground">
+                      Konfirmasi transaksi
+                    </p>
                   </div>
                 </div>
               </DrawerHeader>
@@ -157,22 +170,36 @@ export function ProcessingModal({
                 {/* Transcript */}
                 <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-xl">
                   <Mic className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
-                  <p className="text-sm text-muted-foreground italic">"{transcript}"</p>
+                  <p className="text-sm text-muted-foreground italic">
+                    &quot;{transcript}&quot;
+                  </p>
                 </div>
 
                 {/* Items */}
                 {result.transactions && result.transactions.length > 0 && (
                   <div className="space-y-2">
                     {result.transactions.map((item, idx) => (
-                      <div key={idx} className="flex items-center justify-between py-2 border-b border-border/50 last:border-0">
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
+                      >
                         <div>
-                          <p className="text-sm font-medium text-foreground">{item.item_name}</p>
+                          <p className="text-sm font-medium text-foreground">
+                            {item.item_name}
+                          </p>
                           {item.quantity && item.unit && (
-                            <p className="text-xs text-muted-foreground">{item.quantity} {item.unit} {item.price_per_unit ? 'x ' + formatRupiah(item.price_per_unit) : ''}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {item.quantity} {item.unit}{' '}
+                              {item.price_per_unit
+                                ? 'x ' + formatRupiah(item.price_per_unit)
+                                : ''}
+                            </p>
                           )}
                         </div>
                         <p className="text-sm font-semibold text-foreground">
-                          {item.total_amount ? formatRupiah(item.total_amount) : '-'}
+                          {item.total_amount
+                            ? formatRupiah(item.total_amount)
+                            : '-'}
                         </p>
                       </div>
                     ))}
@@ -183,13 +210,19 @@ export function ProcessingModal({
                 {result.debt && result.debt.debtor_name && (
                   <div className="flex items-center justify-between py-2">
                     <div>
-                      <p className="text-sm font-medium text-foreground">{result.debt.debtor_name}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {result.debt.debtor_name}
+                      </p>
                       <p className="text-xs text-muted-foreground">
-                        {result.type === 'debt_payment' ? 'Pembayaran' : 'Piutang baru'}
+                        {result.type === 'debt_payment'
+                          ? 'Pembayaran'
+                          : 'Piutang baru'}
                       </p>
                     </div>
                     <p className="text-sm font-semibold text-foreground">
-                      {result.debt.amount ? formatRupiah(result.debt.amount) : '-'}
+                      {result.debt.amount
+                        ? formatRupiah(result.debt.amount)
+                        : '-'}
                     </p>
                   </div>
                 )}
@@ -199,40 +232,80 @@ export function ProcessingModal({
                   <div className="space-y-2">
                     <div className="flex items-center justify-between py-2">
                       <p className="text-sm text-muted-foreground">Barang</p>
-                      <p className="text-sm font-medium text-foreground capitalize">{result.stock.item_name}</p>
+                      <p className="text-sm font-medium text-foreground capitalize">
+                        {result.stock.item_name}
+                      </p>
                     </div>
                     <div className="flex items-center justify-between py-2">
                       <p className="text-sm text-muted-foreground">Jumlah</p>
-                      <p className="text-sm font-medium text-foreground">{result.stock.quantity} {result.stock.unit}</p>
+                      <p className="text-sm font-medium text-foreground">
+                        {result.stock.quantity} {result.stock.unit}
+                      </p>
                     </div>
                     {result.stock.buy_price && (
                       <div className="flex items-center justify-between py-2">
-                        <p className="text-sm text-muted-foreground">Harga Beli</p>
-                        <p className="text-sm font-medium text-foreground">{formatRupiah(result.stock.buy_price)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Harga Beli
+                        </p>
+                        <p className="text-sm font-medium text-foreground">
+                          {formatRupiah(result.stock.buy_price)}
+                        </p>
                       </div>
                     )}
                     {result.stock.sell_price && (
                       <div className="flex items-center justify-between py-2">
-                        <p className="text-sm text-muted-foreground">Harga Jual</p>
-                        <p className="text-sm font-medium text-foreground">{formatRupiah(result.stock.sell_price)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Harga Jual
+                        </p>
+                        <p className="text-sm font-medium text-foreground">
+                          {formatRupiah(result.stock.sell_price)}
+                        </p>
                       </div>
                     )}
                   </div>
                 )}
 
                 {/* Total */}
-                {(result.type !== 'stock_add' && result.type !== 'stock_check') && (
-                  <div className={cn('flex items-center justify-between p-4 rounded-xl', config?.bg)}>
-                    <span className="text-sm font-medium text-foreground">Total</span>
-                    <span className={cn('text-xl font-bold', config?.color)}>
-                      {formatRupiah(
-                        result.transactions?.reduce((sum, t) => sum + (t.total_amount || 0), 0) ||
-                        result.debt?.amount ||
-                        0
+                {result.type !== 'stock_add' &&
+                  result.type !== 'stock_check' && (
+                    <div
+                      className={cn(
+                        'flex items-center justify-between p-4 rounded-xl',
+                        config?.bg
                       )}
-                    </span>
-                  </div>
-                )}
+                    >
+                      <span className="text-sm font-medium text-foreground">
+                        Total
+                      </span>
+                      <span className={cn('text-xl font-bold', config?.color)}>
+                        {formatRupiah(
+                          result.transactions?.reduce(
+                            (sum, t) => sum + (t.total_amount || 0),
+                            0
+                          ) ||
+                            result.debt?.amount ||
+                            0
+                        )}
+                      </span>
+                    </div>
+                  )}
+
+                {/* Confidence */}
+                <div className="flex items-center justify-between text-xs text-muted-foreground pt-2">
+                  <span>Tingkat keyakinan AI</span>
+                  <span
+                    className={cn(
+                      'font-medium',
+                      result.confidence >= 0.8
+                        ? 'text-success'
+                        : result.confidence >= 0.6
+                        ? 'text-warning'
+                        : 'text-destructive'
+                    )}
+                  >
+                    {Math.round(result.confidence * 100)}%
+                  </span>
+                </div>
               </div>
 
               <DrawerFooter className="py-4 pb-8 border-t border-border">
