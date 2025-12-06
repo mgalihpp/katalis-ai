@@ -242,23 +242,44 @@ export function ProcessingModal({
                         {result.stock.quantity} {result.stock.unit}
                       </p>
                     </div>
-                    {result.stock.buy_price && (
+                    {result.stock.modal_per_pack && (
                       <div className="flex items-center justify-between py-2">
                         <p className="text-sm text-muted-foreground">
-                          Harga Beli
+                          Modal per {result.stock.unit || 'dus/pak'}
                         </p>
                         <p className="text-sm font-medium text-foreground">
-                          {formatRupiah(result.stock.buy_price)}
+                          {formatRupiah(result.stock.modal_per_pack)}
                         </p>
                       </div>
                     )}
-                    {result.stock.sell_price && (
+                    {result.stock.units_per_pack && result.stock.units_per_pack > 0 && (
                       <div className="flex items-center justify-between py-2">
                         <p className="text-sm text-muted-foreground">
-                          Harga Jual
+                          Isi per {result.stock.unit || 'dus/pak'}
                         </p>
                         <p className="text-sm font-medium text-foreground">
-                          {formatRupiah(result.stock.sell_price)}
+                          {result.stock.units_per_pack} pcs
+                        </p>
+                      </div>
+                    )}
+                    {/* Modal per satuan - calculated from modal_per_pack / units_per_pack */}
+                    {result.stock.modal_per_pack && result.stock.units_per_pack && result.stock.units_per_pack > 0 && (
+                      <div className="flex items-center justify-between py-2 bg-primary/5 rounded-lg px-3 -mx-3">
+                        <p className="text-sm text-muted-foreground">
+                          Modal per satuan
+                        </p>
+                        <p className="text-sm font-semibold text-primary">
+                          ≈ {formatRupiah(Math.round(result.stock.modal_per_pack / result.stock.units_per_pack))} / pcs
+                        </p>
+                      </div>
+                    )}
+                    {result.stock.sell_per_pack && (
+                      <div className="flex items-center justify-between py-2">
+                        <p className="text-sm text-muted-foreground">
+                          Harga Jual per {result.stock.unit || 'dus/pak'}
+                        </p>
+                        <p className="text-sm font-medium text-foreground">
+                          {formatRupiah(result.stock.sell_per_pack)}
                         </p>
                       </div>
                     )}

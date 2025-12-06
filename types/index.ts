@@ -7,10 +7,16 @@ export interface StockItem {
   id: string;
   name: string;
   normalized_name: string;
-  quantity: number;
-  unit: string;
-  buy_price: number | null;
-  sell_price: number | null;
+  quantity: number;                    // Legacy: stok dalam satuan pack (dus/pak) - for display
+  small_unit_quantity: number | null;  // Stok total dalam satuan kecil (pcs/bungkus) - source of truth
+  unit: string;                        // Legacy: kept for compatibility, same as pack_unit
+  pack_unit: string;                   // Satuan pack/kemasan (dus, pak, peti)
+  unit_unit: string;                   // Satuan kecil/eceran (pcs, bungkus, kg)
+  units_per_pack: number | null;       // Isi per pack (contoh: 40 = "1 dus = 40 pcs")
+  modal_per_pack: number | null;       // Harga modal beli per dus/pak
+  modal_per_unit: number | null;       // Harga modal beli per satuan kecil
+  sell_per_unit: number | null;        // Harga jual per satuan kecil
+  sell_per_pack: number | null;        // Harga jual per dus/pak
   min_stock: number;
   created_at: string;
   updated_at: string;
@@ -93,8 +99,11 @@ export interface ParsedVoiceResult {
     item_name: string | null;
     quantity: number | null;
     unit: string | null;
-    buy_price: number | null;
-    sell_price: number | null;
+    units_per_pack: number | null;
+    modal_per_pack: number | null;
+    modal_per_unit: number | null;
+    sell_per_unit: number | null;
+    sell_per_pack: number | null;
   } | null;
   note: string | null;
   raw_text: string;

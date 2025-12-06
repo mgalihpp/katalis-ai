@@ -179,21 +179,70 @@ export const useTransactionStore = create<TransactionStore>()(
           });
         } else {
           // Regular transaction (sale/purchase)
+          const stockStore = useStockStore.getState();
+          
+          // Enrich transaction items with prices from stock if price is null (for sales)
+          const enrichedItems = (result.transactions || []).map(item => {
+            if (!item.item_name) return item;
+            
+            const stock = stockStore.getStockByName(item.item_name);
+            let pricePerUnit = item.price_per_unit;
+            
+            // If price not provided and this is a sale, look up from stock
+            if (pricePerUnit === null && result.type === 'sale' && stock) {
+              const unit = item.unit?.toLowerCase() || 'pcs';
+              const packUnits = ['dus', 'pak', 'box', 'karton', 'lusin', 'krat', 'peti'];
+              const isPack = packUnits.includes(unit);
+              
+              pricePerUnit = isPack 
+                ? (stock.sell_per_pack ?? stock.sell_per_unit ?? null)
+                : (stock.sell_per_unit ?? null);
+            }
+            
+            const qty = item.quantity || 1;
+            const total = pricePerUnit ? qty * pricePerUnit : 0;
+            
+            return {
+              ...item,
+              quantity: qty,
+              price_per_unit: pricePerUnit,
+              total_amount: total,
+            };
+          });
+          
+          // Recalculate total
+          const enrichedTotal = enrichedItems.reduce((sum, t) => sum + (t.total_amount || 0), 0);
+          
+          // Update transaction with enriched items
+          const enrichedTransaction: Transaction = {
+            ...transaction,
+            items: enrichedItems.map(t => ({
+              item_name: t.item_name || '',
+              quantity: t.quantity,
+              unit: t.unit,
+              price_per_unit: t.price_per_unit,
+              total_amount: t.total_amount || 0,
+            })),
+            total_amount: enrichedTotal,
+          };
+          
           set((state) => ({
-            transactions: [transaction, ...state.transactions],
+            transactions: [enrichedTransaction, ...state.transactions],
           }));
 
           // Auto-update stock for sales and purchases
-          if ((result.type === 'sale' || result.type === 'purchase') && result.transactions) {
-            const stockStore = useStockStore.getState();
-            result.transactions.forEach((item) => {
+          if ((result.type === 'sale' || result.type === 'purchase') && enrichedItems.length > 0) {
+            enrichedItems.forEach((item) => {
               if (item.item_name && item.quantity) {
+                // Get units_per_pack from stock info if available (for purchases)
+                const unitsPerPack = result.stock?.units_per_pack || undefined;
                 stockStore.updateStockFromTransaction(
                   item.item_name,
                   item.quantity,
                   result.type as 'sale' | 'purchase',
                   item.unit || 'pcs',
-                  item.price_per_unit || undefined
+                  item.price_per_unit || undefined,
+                  unitsPerPack
                 );
               }
             });

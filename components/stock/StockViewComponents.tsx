@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowUp, ArrowDown, RefreshCw, TrendingUp, TrendingDown, AlertTriangle, History } from 'lucide-react';
+import { ArrowUp, ArrowDown, RefreshCw, TrendingUp, TrendingDown, AlertTriangle, History, Package } from 'lucide-react';
 import { cn, formatRupiah, formatRelativeTime } from '@/lib/utils';
 import { createRippleEffect } from '@/hooks/useRipple';
 import type { StockItem, StockMovement } from '@/types';
@@ -14,11 +14,15 @@ interface StockQuantityCardProps {
 }
 
 export function StockQuantityCard({ stock, statusBg, statusText, isLowStock, isOutOfStock }: StockQuantityCardProps) {
+    // Calculate small unit quantity if not stored
+    const smallUnitQty = stock.small_unit_quantity ?? 
+        (stock.units_per_pack ? stock.quantity * stock.units_per_pack : null);
+    
     return (
         <div className={cn('p-5 rounded-2xl text-center', statusBg)}>
             <p className="text-sm text-muted-foreground mb-1">Jumlah Stok</p>
             <p className={cn('text-4xl font-bold', statusText)}>{stock.quantity}</p>
-            <p className="text-sm text-muted-foreground">{stock.unit}</p>
+            <p className="text-sm text-muted-foreground">{stock.pack_unit || stock.unit}</p>
             {isOutOfStock && (
                 <div className="flex items-center justify-center gap-1 mt-2 text-destructive">
                     <AlertTriangle className="w-4 h-4" />
@@ -31,6 +35,22 @@ export function StockQuantityCard({ stock, statusBg, statusText, isLowStock, isO
                     <span className="text-sm font-medium">Stok Rendah</span>
                 </div>
             )}
+        </div>
+    );
+}
+
+// Component to display total stock in small units (e.g., "41 pcs")
+export function SmallUnitQuantityDisplay({ stock }: { stock: StockItem }) {
+    // Calculate small unit quantity if not stored directly
+    const smallUnitQty = stock.small_unit_quantity ?? 
+        (stock.units_per_pack ? stock.quantity * stock.units_per_pack : null);
+    
+    // Don't show if no small unit quantity available
+    if (smallUnitQty === null || !stock.units_per_pack) return null;
+    
+    return (
+        <div className="text-center py-3 bg-muted/50 rounded-xl border-2 border-muted">
+            <p className="text-xl font-bold text-foreground">{smallUnitQty} {stock.unit_unit || 'pcs'}</p>
         </div>
     );
 }
@@ -50,38 +70,75 @@ export function AdjustStockButton({ onClick }: { onClick: () => void }) {
 
 export function PriceCards({ stock }: { stock: StockItem }) {
     return (
-        <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 bg-muted/50 rounded-xl">
-                <div className="flex items-center gap-2 mb-2">
-                    <TrendingDown className="w-4 h-4 text-purchase" />
-                    <span className="text-xs text-muted-foreground">Harga Beli</span>
+        <div className="space-y-3">
+            {/* Per Dus/Pak Section */}
+            <div className="grid grid-cols-2 gap-3">
+                <div className="p-4 bg-muted/50 rounded-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                        <TrendingDown className="w-4 h-4 text-purchase" />
+                        <span className="text-xs text-muted-foreground">Modal per dus/pak</span>
+                    </div>
+                    <p className="text-lg font-bold text-foreground">
+                        {stock.modal_per_pack ? formatRupiah(stock.modal_per_pack) : '-'}
+                    </p>
                 </div>
-                <p className="text-lg font-bold text-foreground">
-                    {stock.buy_price ? formatRupiah(stock.buy_price) : '-'}
-                </p>
+                <div className="p-4 bg-muted/50 rounded-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="w-4 h-4 text-success" />
+                        <span className="text-xs text-muted-foreground">Jual per dus/pak</span>
+                    </div>
+                    <p className="text-lg font-bold text-foreground">
+                        {stock.sell_per_pack ? formatRupiah(stock.sell_per_pack) : '-'}
+                    </p>
+                </div>
             </div>
-            <div className="p-4 bg-muted/50 rounded-xl">
-                <div className="flex items-center gap-2 mb-2">
-                    <TrendingUp className="w-4 h-4 text-success" />
-                    <span className="text-xs text-muted-foreground">Harga Jual</span>
+            {/* Per Satuan Section */}
+            <div className="grid grid-cols-2 gap-3">
+                <div className="p-4 bg-muted/50 rounded-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                        <TrendingDown className="w-4 h-4 text-purchase" />
+                        <span className="text-xs text-muted-foreground">Modal per satuan</span>
+                    </div>
+                    <p className="text-lg font-bold text-foreground">
+                        {stock.modal_per_unit ? formatRupiah(stock.modal_per_unit) : '-'}
+                    </p>
                 </div>
-                <p className="text-lg font-bold text-foreground">
-                    {stock.sell_price ? formatRupiah(stock.sell_price) : '-'}
-                </p>
+                <div className="p-4 bg-muted/50 rounded-xl">
+                    <div className="flex items-center gap-2 mb-2">
+                        <TrendingUp className="w-4 h-4 text-success" />
+                        <span className="text-xs text-muted-foreground">Jual per satuan</span>
+                    </div>
+                    <p className="text-lg font-bold text-foreground">
+                        {stock.sell_per_unit ? formatRupiah(stock.sell_per_unit) : '-'}
+                    </p>
+                </div>
             </div>
         </div>
     );
 }
 
+export function UnitsPerPackInfo({ stock }: { stock: StockItem }) {
+    if (!stock.units_per_pack) return null;
+    
+    return (
+        <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-xl">
+            <Package className="w-4 h-4 text-muted-foreground" />
+            <span className="text-sm text-muted-foreground">
+                1 {stock.pack_unit || stock.unit} = <span className="font-medium text-foreground">{stock.units_per_pack} {stock.unit_unit || 'pcs'}</span>
+            </span>
+        </div>
+    );
+}
+
 export function ProfitMargin({ stock }: { stock: StockItem }) {
-    if (!stock.buy_price || !stock.sell_price) return null;
+    if (!stock.modal_per_unit || !stock.sell_per_unit) return null;
 
     return (
         <div className="p-4 bg-success/10 rounded-xl">
-            <p className="text-xs text-muted-foreground mb-1">Margin Keuntungan</p>
+            <p className="text-xs text-muted-foreground mb-1">Margin Keuntungan (per satuan)</p>
             <p className="text-xl font-bold text-success">
-                {formatRupiah(stock.sell_price - stock.buy_price)}
-                <span className="text-sm font-normal text-muted-foreground"> / {stock.unit}</span>
+                {formatRupiah(stock.sell_per_unit - stock.modal_per_unit)}
+                <span className="text-sm font-normal text-muted-foreground"> / {stock.unit_unit || 'pcs'}</span>
             </p>
         </div>
     );
@@ -91,7 +148,7 @@ export function MinStockInfo({ stock }: { stock: StockItem }) {
     return (
         <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
             <span className="text-sm text-muted-foreground">Stok Minimum</span>
-            <span className="font-medium text-foreground">{stock.min_stock} {stock.unit}</span>
+            <span className="font-medium text-foreground">{stock.min_stock} {stock.pack_unit || stock.unit}</span>
         </div>
     );
 }

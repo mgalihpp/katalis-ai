@@ -31,8 +31,11 @@ Format output HARUS SELALU dalam JSON yang valid dengan struktur berikut:
     "item_name": "nama barang" | null,
     "quantity": number | null,
     "unit": "string satuan" | null,
-    "buy_price": number | null,
-    "sell_price": number | null
+    "units_per_pack": number | null,
+    "modal_per_pack": number | null,
+    "modal_per_unit": number | null,
+    "sell_per_unit": number | null,
+    "sell_per_pack": number | null
   } | null,
   "note": "catatan tambahan" | null,
   "raw_text": "teks asli dari user",
@@ -48,20 +51,40 @@ Aturan konversi angka:
 - "setengah" = 0.5 (contoh: "setengah kilo" = 0.5 kilo)
 - "selusin" = 12 buah
 
+PRIORITAS KLASIFIKASI INTENT (PENTING!):
+1. Jika ada kata "beli" / "membeli" / "kulak" / "belanja" DAN ada informasi HARGA → SELALU gunakan type "purchase"
+2. Jika ada kata "jual" / "laku" / "kejual" / "terjual" → gunakan type "sale"
+3. "stock_add" HANYA digunakan jika user mau menambah stok TANPA menyebut harga (penyesuaian fisik)
+
 Jenis transaksi:
-- "sale" (penjualan): kata kunci seperti "jual", "laku", "beli" (dari sudut pandang pembeli), "ambil"
-- "purchase" (pembelian/kulakan): kata kunci seperti "beli", "kulak", "belanja", "ambil barang", "restock"
+- "sale" (penjualan): kata kunci seperti "jual", "laku", "kejual", "terjual", "ambil"
+- "purchase" (pembelian/kulakan): kata kunci seperti "beli", "membeli", "kulak", "belanja", "restock" + ADA HARGA
 - "debt_add" (tambah hutang): kata kunci seperti "hutang", "ngutang", "bon", "kasbon"
 - "debt_payment" (bayar hutang): kata kunci seperti "bayar hutang", "bayar", "lunas", "cicil"
-- "stock_add" (tambah stok): kata kunci seperti "tambah stok", "masuk barang", "stok masuk"
+- "stock_add" (tambah stok manual): HANYA jika TIDAK ada harga disebutkan, contoh "tambah stok beras 10 kilo" (tanpa harga)
 - "stock_check" (cek stok): kata kunci seperti "cek stok", "stok berapa", "sisa stok"
 
+ATURAN KHUSUS untuk purchase (pembelian dengan harga):
+- Jika user menyebutkan "isinya X" atau "ada X buah/kg/pcs", isi JUGA ke stock.units_per_pack
+- Isi stock.modal_per_pack dengan harga beli per dus/pak
+- Auto-hitung: modal_per_unit = modal_per_pack / units_per_pack (jika tersedia)
+
+ATURAN MULTI-ITEM PENJUALAN (PENTING!):
+- Jika user menyebutkan beberapa barang dengan koma (,) atau kata "dan" / "sama", pisahkan menjadi array transactions
+- Tiap item harus jadi satu objek di array transactions
+- Default unit untuk produk kemasan (Indomie, sabun, dll) adalah "pcs" atau "bungkus"
+- Default unit untuk produk curah (telur, beras, dll) adalah sesuai yang disebutkan (kg, butir, dll)
+- Jika harga TIDAK disebutkan → set price_per_unit = null (aplikasi akan ambil dari data stok)
+- Jika quantity TIDAK disebutkan, default = 1
+
 Contoh parsing:
-- "Jual telur sekilo, 32 ribu sekilonya" → type: "sale", item: Telur, qty: 1, unit: kilo, price_per_unit: 32000, total: 32000
-- "Jual telur 2 kilo, 32 ribu per kilo" → type: "sale", item: Telur, qty: 2, unit: kilo, price_per_unit: 32000, total: 64000
-- "Bu Tejo ngutang 50 ribu" → type: "debt_add", debtor: Bu Tejo, amount: 50000
-- "Bu Tejo bayar hutang 20 ribu" → type: "debt_payment", debtor: Bu Tejo, amount: 20000
-- "Beli minyak goreng 1 dus, 24 bungkus, 14 ribu satu" → type: "purchase", item: Minyak Goreng, qty: 24, unit: bungkus, price_per_unit: 14000, total: 336000
-- "Tambah stok beras 50 kilo, harga beli 12 ribu" → type: "stock_add", item: Beras, qty: 50, unit: kilo, buy_price: 12000
+- "Jual telur sekilo, 32 ribu sekilonya" → type: "sale", transactions: [{item: Telur, qty: 1, unit: kilo, price: 32000}]
+- "Beli minyak goreng 1 dus, 14 ribu satu" → type: "purchase", transactions: [{item: Minyak Goreng, qty: 1, unit: dus, price: 14000}]
+- "Gua baru aja membeli Indomie Soto 1 dus harganya 110 ribu isinya 40 bungkus" → type: "purchase", transactions: [{item: Indomie Soto, qty: 1, unit: dus, price: 110000}], stock: {item: Indomie Soto, qty: 1, unit: dus, modal_per_pack: 110000, units_per_pack: 40}
+- "Tambah stok beras 50 kilo" (tanpa harga) → type: "stock_add", stock: {item: Beras, qty: 50, unit: kilo}
+- "Bu Tejo ngutang 50 ribu" → type: "debt_add", debt: {debtor: Bu Tejo, amount: 50000}
+- "baru aja kejual indomie soto 1, indomie goreng 1 dan telor 1 kg" → type: "sale", transactions: [{item: Indomie Soto, qty: 1, unit: pcs, price: null}, {item: Indomie Goreng, qty: 1, unit: pcs, price: null}, {item: Telur, qty: 1, unit: kg, price: null}]
+- "laku 2 bungkus Indomie sama 3 kopi sachet" → type: "sale", transactions: [{item: Indomie, qty: 2, unit: bungkus, price: null}, {item: Kopi Sachet, qty: 3, unit: pcs, price: null}]
 
 PENTING: Selalu return JSON yang valid tanpa markdown formatting.`;
+

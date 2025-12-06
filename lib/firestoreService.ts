@@ -20,16 +20,47 @@ const getUserCollection = (userId: string, collectionName: string) => {
     return collection(db, 'users', userId, collectionName);
 };
 
+// Helper to sanitize StockItem - converts undefined to null for Firebase compatibility
+const sanitizeStockItem = (stock: StockItem): StockItem => {
+    return {
+        ...stock,
+        pack_unit: stock.pack_unit || stock.unit || 'pcs',
+        unit_unit: stock.unit_unit || 'pcs',
+        small_unit_quantity: stock.small_unit_quantity ?? null,
+        units_per_pack: stock.units_per_pack ?? null,
+        modal_per_pack: stock.modal_per_pack ?? null,
+        modal_per_unit: stock.modal_per_unit ?? null,
+        sell_per_unit: stock.sell_per_unit ?? null,
+        sell_per_pack: stock.sell_per_pack ?? null,
+    };
+};
+
 // Helper to get user settings document (users/{userId}/userSettings/config)
 const getUserSettingsDoc = (userId: string) => {
     return doc(db, 'users', userId, 'userSettings', 'config');
+};
+
+// Helper to sanitize Transaction - converts undefined to null/0 for Firebase compatibility
+const sanitizeTransaction = (transaction: Transaction): Transaction => {
+    return {
+        ...transaction,
+        total_amount: transaction.total_amount ?? 0,
+        note: transaction.note ?? null,
+        items: (transaction.items || []).map(item => ({
+            item_name: item.item_name ?? '',
+            quantity: item.quantity ?? 0,
+            unit: item.unit ?? null,
+            price_per_unit: item.price_per_unit ?? 0,
+            total_amount: item.total_amount ?? 0,
+        })),
+    };
 };
 
 // ==================== TRANSACTIONS ====================
 
 export const saveTransaction = async (userId: string, transaction: Transaction) => {
     const docRef = doc(getUserCollection(userId, 'transactions'), transaction.id);
-    await setDoc(docRef, transaction);
+    await setDoc(docRef, sanitizeTransaction(transaction));
 };
 
 export const updateTransaction = async (userId: string, id: string, updates: Partial<Transaction>) => {
@@ -106,7 +137,7 @@ export const subscribeToDebts = (
 
 export const saveStock = async (userId: string, stock: StockItem) => {
     const docRef = doc(getUserCollection(userId, 'stocks'), stock.id);
-    await setDoc(docRef, stock);
+    await setDoc(docRef, sanitizeStockItem(stock));
 };
 
 export const updateStock = async (userId: string, id: string, updates: Partial<StockItem>) => {
@@ -227,7 +258,7 @@ export const batchSaveAll = async (
 
     data.stocks?.forEach(s => {
         const ref = doc(getUserCollection(userId, 'stocks'), s.id);
-        batch.set(ref, s);
+        batch.set(ref, sanitizeStockItem(s));
     });
 
     data.movements?.forEach(m => {
@@ -283,7 +314,9 @@ export const syncDebtsWithDeletion = async (userId: string, debts: Debt[]) => {
 };
 
 export const syncStocksWithDeletion = async (userId: string, stocks: StockItem[]) => {
-    return syncCollectionWithDeletion(userId, 'stocks', stocks);
+    // Sanitize all stocks before syncing to Firebase
+    const sanitizedStocks = stocks.map(sanitizeStockItem);
+    return syncCollectionWithDeletion(userId, 'stocks', sanitizedStocks);
 };
 
 export const syncMovementsWithDeletion = async (userId: string, movements: StockMovement[]) => {

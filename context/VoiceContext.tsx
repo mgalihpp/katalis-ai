@@ -76,10 +76,73 @@ async function processVoice(audioBlob: Blob): Promise<{ transcript: string; pars
   return response.json();
 }
 
+// Normalize units for sales (piece, pc → pcs)
+function normalizeUnitForSale(unit: string | null): string {
+  if (!unit) return 'pcs';
+  const normalized = unit.toLowerCase().trim();
+  const unitMap: Record<string, string> = {
+    'piece': 'pcs',
+    'pieces': 'pcs',
+    'pc': 'pcs',
+    'bungkus': 'pcs',
+    'biji': 'pcs',
+    'buah': 'pcs',
+    'bus': 'dus',
+    'dos': 'dus',
+    'bos': 'dus',
+  };
+  return unitMap[normalized] || normalized;
+}
+
+// Enrich transactions with prices from stock (for sales)
+function enrichTransactionsWithPrices(
+  parsed: ParsedVoiceResult, 
+  getStockByName: (name: string) => ReturnType<typeof useStockStore.getState>['stocks'][number] | undefined
+): ParsedVoiceResult {
+  if (parsed.type !== 'sale' || !parsed.transactions) return parsed;
+  
+  const packUnits = ['dus', 'pak', 'box', 'karton', 'lusin', 'krat', 'peti'];
+  
+  const enrichedTransactions = parsed.transactions.map(item => {
+    if (!item.item_name) return item;
+    
+    const stock = getStockByName(item.item_name);
+    const normalizedUnit = normalizeUnitForSale(item.unit);
+    const isPack = packUnits.includes(normalizedUnit);
+    
+    let pricePerUnit = item.price_per_unit;
+    
+    // Only look up price if not provided
+    if (pricePerUnit === null && stock) {
+      pricePerUnit = isPack 
+        ? (stock.sell_per_pack ?? stock.sell_per_unit ?? null)
+        : (stock.sell_per_unit ?? null);
+    }
+    
+    const qty = item.quantity || 1;
+    const total = pricePerUnit ? qty * pricePerUnit : 0;
+    
+    return {
+      ...item,
+      unit: normalizedUnit,
+      quantity: qty,
+      price_per_unit: pricePerUnit,
+      total_amount: total,
+    };
+  });
+  
+  const totalAmount = enrichedTransactions.reduce((sum, t) => sum + (t.total_amount || 0), 0);
+  
+  return {
+    ...parsed,
+    transactions: enrichedTransactions,
+  };
+}
+
 export function VoiceProvider({ children }: { children: ReactNode }) {
   const { state, startRecording, stopRecording, resetState, setProcessing, setError } = useVoiceRecorder();
   const { addTransaction } = useTransactionStore();
-  const { addStock } = useStockStore();
+  const { addStock, getStockByName } = useStockStore();
 
   const [showModal, setShowModal] = useState(false);
   const [currentResult, setCurrentResult] = useState<{ transcript: string; parsed: ParsedVoiceResult } | null>(null);
@@ -102,7 +165,14 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
 
     try {
       const result = await processVoice(audioBlob);
-      setCurrentResult(result);
+      
+      // Enrich transactions with prices from stock (for sales)
+      const enrichedParsed = enrichTransactionsWithPrices(result.parsed, getStockByName);
+      
+      setCurrentResult({
+        transcript: result.transcript,
+        parsed: enrichedParsed,
+      });
       setProcessing(false);
     } catch (error) {
       const errorMessage = error instanceof Error
@@ -110,7 +180,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         : 'Gagal memproses suara. Silakan coba lagi.';
       setError(errorMessage);
     }
-  }, [state.isRecording, stopRecording, setProcessing, setError]);
+  }, [state.isRecording, stopRecording, setProcessing, setError, getStockByName]);
 
   const handleConfirm = useCallback(() => {
     if (currentResult) {
