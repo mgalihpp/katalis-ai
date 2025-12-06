@@ -1,6 +1,6 @@
 'use client';
 
-import { Settings, Info, ChevronRight, Store, Coffee, ShoppingBag, UtensilsCrossed, Building2 } from 'lucide-react';
+import { Settings, Info, ChevronRight, Store, Coffee, ShoppingBag, UtensilsCrossed, Building2, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useUserStore, AppIconType } from '@/store/useUserStore';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -13,6 +13,7 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { logoutAndClearData } from '@/lib/logout';
 
 // Icon mapping for app icons
 export const appIcons: Record<AppIconType, React.ComponentType<{ className?: string }>> = {
@@ -58,9 +59,9 @@ export function ProfileMenu({ variant = 'default' }: ProfileMenuProps) {
             <DropdownMenuTrigger asChild>
                 <button
                     className={cn(
-                        "flex items-center gap-2 p-1 rounded-full transition-all",
-                        "hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-primary/50",
-                        isLight && "hover:bg-white/20"
+                        'flex items-center gap-2 p-1 rounded-full transition-all',
+                        'hover:bg-black/10 focus:outline-none focus:ring-2 focus:ring-primary/50',
+                        isLight && 'hover:bg-white/20'
                     )}
                 >
                     <Avatar className="h-9 w-9 border-2 border-white/30 shadow-md">
@@ -68,8 +69,8 @@ export function ProfileMenu({ variant = 'default' }: ProfileMenuProps) {
                             <AvatarImage src={profileImage} alt={storeName} />
                         ) : null}
                         <AvatarFallback className={cn(
-                            "text-xs font-semibold",
-                            isLight ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+                            'text-xs font-semibold',
+                            isLight ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'
                         )}>
                             {getInitials()}
                         </AvatarFallback>
@@ -106,6 +107,21 @@ export function ProfileMenu({ variant = 'default' }: ProfileMenuProps) {
                     <Info className="mr-2 h-4 w-4 group-focus:text-primary-foreground" />
                     <span className="flex-1">Tentang Aplikasi</span>
                     <ChevronRight className="h-4 w-4 text-muted-foreground group-focus:text-primary-foreground" />
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                    onClick={async () => {
+                        try {
+                            await logoutAndClearData();
+                            router.push('/login');
+                        } catch (error) {
+                            console.error('Logout error:', error);
+                        }
+                    }}
+                    className="cursor-pointer focus:bg-destructive group transition-colors"
+                >
+                    <LogOut className="mr-2 h-4 w-4 group-focus:text-destructive-foreground" />
+                    <span className="flex-1">Keluar</span>
                 </DropdownMenuItem>
             </DropdownMenuContent>
         </DropdownMenu>

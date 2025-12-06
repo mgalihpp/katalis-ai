@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import {
@@ -11,9 +11,14 @@ import {
   AlertTriangle,
   ArrowUp,
   ArrowDown,
-  History
+  History,
 } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
@@ -45,29 +50,36 @@ const statusConfig = {
     icon: AlertTriangle,
     label: 'Belum Bayar',
     color: 'text-debt',
-    bg: 'bg-debt/10'
+    bg: 'bg-debt/10',
   },
   partial: {
     icon: Clock,
     label: 'Sebagian',
     color: 'text-accent',
-    bg: 'bg-accent/10'
+    bg: 'bg-accent/10',
   },
   paid: {
     icon: CheckCircle,
     label: 'Lunas',
     color: 'text-success',
-    bg: 'bg-success/10'
+    bg: 'bg-success/10',
   },
 };
 
-export function DebtDetailSheet({ debt, isOpen, onClose }: DebtDetailSheetProps) {
+export function DebtDetailSheet({
+  debt,
+  isOpen,
+  onClose,
+}: DebtDetailSheetProps) {
   const { updateDebt, deleteDebt, addDebtPayment } = useTransactionStore();
 
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [editData, setEditData] = useState({ debtor_name: '', total_amount: 0 });
+  const [editData, setEditData] = useState({
+    debtor_name: '',
+    total_amount: 0,
+  });
   const [paymentData, setPaymentData] = useState({ amount: 0, note: '' });
 
   if (!debt) return null;
@@ -130,11 +142,19 @@ export function DebtDetailSheet({ debt, isOpen, onClose }: DebtDetailSheetProps)
     <>
       <Drawer open={isOpen} onOpenChange={onClose}>
         <DrawerContent className="max-h-[90dvh]">
-          <div className="mx-auto w-full max-w-lg flex flex-col overflow-hidden" style={{ maxHeight: '90dvh' }}>
+          <div
+            className="mx-auto w-full max-w-lg flex flex-col overflow-hidden"
+            style={{ maxHeight: '90dvh' }}
+          >
             <DrawerHeader className="shrink-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={cn('w-12 h-12 rounded-2xl flex items-center justify-center', config.bg)}>
+                  <div
+                    className={cn(
+                      'w-12 h-12 rounded-2xl flex items-center justify-center',
+                      config.bg
+                    )}
+                  >
                     <HandCoins className={cn('w-6 h-6', config.color)} />
                   </div>
                   <div>
@@ -142,7 +162,12 @@ export function DebtDetailSheet({ debt, isOpen, onClose }: DebtDetailSheetProps)
                       {isEditing ? 'Edit Piutang' : debt.debtor_name}
                     </DrawerTitle>
                     {!isEditing && (
-                      <div className={cn('inline-flex items-center gap-1 text-sm', config.color)}>
+                      <div
+                        className={cn(
+                          'inline-flex items-center gap-1 text-sm',
+                          config.color
+                        )}
+                      >
                         <StatusIcon className="w-3 h-3" />
                         {config.label}
                       </div>
@@ -175,18 +200,29 @@ export function DebtDetailSheet({ debt, isOpen, onClose }: DebtDetailSheetProps)
                 /* Edit Form */
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-xs text-muted-foreground">Nama</Label>
+                    <Label className="text-xs text-muted-foreground">
+                      Nama
+                    </Label>
                     <Input
                       value={editData.debtor_name}
-                      onChange={(e) => setEditData({ ...editData, debtor_name: e.target.value })}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          debtor_name: e.target.value,
+                        })
+                      }
                       className="mt-1 bg-muted/50"
                     />
                   </div>
                   <div>
-                    <Label className="text-xs text-muted-foreground">Total Hutang</Label>
+                    <Label className="text-xs text-muted-foreground">
+                      Total Hutang
+                    </Label>
                     <CurrencyInput
                       value={editData.total_amount}
-                      onChange={(val) => setEditData({ ...editData, total_amount: val })}
+                      onChange={(val) =>
+                        setEditData({ ...editData, total_amount: val })
+                      }
                       className="mt-1 bg-muted/50"
                     />
                   </div>
@@ -196,14 +232,18 @@ export function DebtDetailSheet({ debt, isOpen, onClose }: DebtDetailSheetProps)
                 <>
                   {/* Remaining Amount - Main Card */}
                   <div className={cn('p-5 rounded-2xl text-center', config.bg)}>
-                    <p className="text-sm text-muted-foreground mb-1">Sisa Hutang</p>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Sisa Hutang
+                    </p>
                     <p className={cn('text-4xl font-bold', config.color)}>
                       {formatRupiah(debt.remaining_amount)}
                     </p>
                     {debt.status === 'paid' && (
                       <div className="flex items-center justify-center gap-1 mt-2 text-success">
                         <CheckCircle className="w-4 h-4" />
-                        <span className="text-sm font-medium">Sudah Lunas!</span>
+                        <span className="text-sm font-medium">
+                          Sudah Lunas!
+                        </span>
                       </div>
                     )}
                   </div>
@@ -223,26 +263,42 @@ export function DebtDetailSheet({ debt, isOpen, onClose }: DebtDetailSheetProps)
                   {/* Amount Summary */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="p-4 bg-muted/50 rounded-xl">
-                      <p className="text-xs text-muted-foreground mb-1">Total Hutang</p>
-                      <p className="text-lg font-bold text-foreground">{formatRupiah(debt.total_amount)}</p>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Total Hutang
+                      </p>
+                      <p className="text-lg font-bold text-foreground">
+                        {formatRupiah(debt.total_amount)}
+                      </p>
                     </div>
                     <div className="p-4 bg-success/10 rounded-xl">
-                      <p className="text-xs text-muted-foreground mb-1">Sudah Dibayar</p>
-                      <p className="text-lg font-bold text-success">{formatRupiah(debt.paid_amount)}</p>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Sudah Dibayar
+                      </p>
+                      <p className="text-lg font-bold text-success">
+                        {formatRupiah(debt.paid_amount)}
+                      </p>
                     </div>
                   </div>
 
                   {/* Progress Bar */}
                   <div className="p-4 bg-muted/30 rounded-xl">
                     <div className="flex justify-between text-sm mb-2">
-                      <span className="text-muted-foreground">Progress Pembayaran</span>
-                      <span className="font-medium text-foreground">{Math.round(progressPercent)}%</span>
+                      <span className="text-muted-foreground">
+                        Progress Pembayaran
+                      </span>
+                      <span className="font-medium text-foreground">
+                        {Math.round(progressPercent)}%
+                      </span>
                     </div>
                     <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
                       <div
                         className={cn(
                           'h-full rounded-full transition-all duration-500',
-                          debt.status === 'paid' ? 'bg-success' : debt.status === 'partial' ? 'bg-accent' : 'bg-debt'
+                          debt.status === 'paid'
+                            ? 'bg-success'
+                            : debt.status === 'partial'
+                            ? 'bg-accent'
+                            : 'bg-debt'
                         )}
                         style={{ width: `${progressPercent}%` }}
                       />
@@ -253,15 +309,22 @@ export function DebtDetailSheet({ debt, isOpen, onClose }: DebtDetailSheetProps)
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <History className="w-4 h-4 text-muted-foreground" />
-                      <h3 className="text-sm font-medium text-muted-foreground">Riwayat Transaksi</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground">
+                        Riwayat Transaksi
+                      </h3>
                     </div>
                     <div className="space-y-2">
                       {debt.transactions.map((t) => (
-                        <div key={t.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
-                          <div className={cn(
-                            'w-8 h-8 rounded-full flex items-center justify-center shrink-0',
-                            t.type === 'add' ? 'bg-debt/10' : 'bg-success/10'
-                          )}>
+                        <div
+                          key={t.id}
+                          className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl"
+                        >
+                          <div
+                            className={cn(
+                              'w-8 h-8 rounded-full flex items-center justify-center shrink-0',
+                              t.type === 'add' ? 'bg-debt/10' : 'bg-success/10'
+                            )}
+                          >
                             {t.type === 'add' ? (
                               <ArrowUp className="w-4 h-4 text-debt" />
                             ) : (
@@ -277,11 +340,14 @@ export function DebtDetailSheet({ debt, isOpen, onClose }: DebtDetailSheetProps)
                               {t.note && ` • ${t.note}`}
                             </p>
                           </div>
-                          <span className={cn(
-                            'text-sm font-bold shrink-0',
-                            t.type === 'add' ? 'text-debt' : 'text-success'
-                          )}>
-                            {t.type === 'add' ? '+' : '-'}{formatRupiah(t.amount)}
+                          <span
+                            className={cn(
+                              'text-sm font-bold shrink-0',
+                              t.type === 'add' ? 'text-debt' : 'text-success'
+                            )}
+                          >
+                            {t.type === 'add' ? '+' : '-'}
+                            {formatRupiah(t.amount)}
                           </span>
                         </div>
                       ))}
@@ -290,7 +356,8 @@ export function DebtDetailSheet({ debt, isOpen, onClose }: DebtDetailSheetProps)
 
                   {/* Date Info */}
                   <p className="text-xs text-muted-foreground text-center">
-                    Dibuat {new Date(debt.created_at).toLocaleDateString('id-ID', {
+                    Dibuat{' '}
+                    {new Date(debt.created_at).toLocaleDateString('id-ID', {
                       day: 'numeric',
                       month: 'long',
                       year: 'numeric',
@@ -332,9 +399,12 @@ export function DebtDetailSheet({ debt, isOpen, onClose }: DebtDetailSheetProps)
             <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-2">
               <Trash2 className="w-6 h-6 text-destructive" />
             </div>
-            <AlertDialogTitle className="text-center">Hapus Piutang?</AlertDialogTitle>
+            <AlertDialogTitle className="text-center">
+              Hapus Piutang?
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
-              Data piutang "{debt.debtor_name}" akan dihapus secara permanen beserta riwayat pembayarannya.
+              Data piutang &quot;{debt.debtor_name}&quot; akan dihapus secara
+              permanen beserta riwayat pembayarannya.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-3 sm:justify-center">
@@ -356,25 +426,35 @@ export function DebtDetailSheet({ debt, isOpen, onClose }: DebtDetailSheetProps)
             <div className="w-12 h-12 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-2">
               <Wallet className="w-6 h-6 text-success" />
             </div>
-            <AlertDialogTitle className="text-center">Catat Pembayaran</AlertDialogTitle>
+            <AlertDialogTitle className="text-center">
+              Catat Pembayaran
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
               Sisa hutang: {formatRupiah(debt.remaining_amount)}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label className="text-xs text-muted-foreground">Jumlah Bayar</Label>
+              <Label className="text-xs text-muted-foreground">
+                Jumlah Bayar
+              </Label>
               <CurrencyInput
                 value={paymentData.amount}
-                onChange={(val) => setPaymentData({ ...paymentData, amount: val })}
+                onChange={(val) =>
+                  setPaymentData({ ...paymentData, amount: val })
+                }
                 className="mt-1 bg-muted/50"
               />
             </div>
             <div>
-              <Label className="text-xs text-muted-foreground">Catatan (opsional)</Label>
+              <Label className="text-xs text-muted-foreground">
+                Catatan (opsional)
+              </Label>
               <Input
                 value={paymentData.note}
-                onChange={(e) => setPaymentData({ ...paymentData, note: e.target.value })}
+                onChange={(e) =>
+                  setPaymentData({ ...paymentData, note: e.target.value })
+                }
                 placeholder="Contoh: Via transfer, tunai..."
                 className="mt-1 bg-muted/50"
               />

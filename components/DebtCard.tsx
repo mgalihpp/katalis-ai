@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { HandCoins, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { cn, formatRupiah } from '@/lib/utils';
