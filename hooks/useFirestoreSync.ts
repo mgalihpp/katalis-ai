@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
 import { useAuth } from '@/context/AuthContext';

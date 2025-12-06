@@ -88,7 +88,7 @@ export const useTransactionStore = create<TransactionStore>()(
               d => normalizeDebtorName(d.debtor_name) === normalizedName
             );
 
-            let updatedDebts = [...state.debts];
+            const updatedDebts = [...state.debts];
 
             if (result.type === 'debt_add') {
               if (existingDebtIndex >= 0) {

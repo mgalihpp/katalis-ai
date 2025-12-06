@@ -1,6 +1,6 @@
 'use client';
 
-import { Store, Coffee, ShoppingBag, UtensilsCrossed, Building2, ScanLine } from 'lucide-react';
+import { Store, Coffee, ShoppingBag, UtensilsCrossed, Building2, ScanLine, Sparkles } from 'lucide-react';
 import { getGreeting, formatDate } from '@/lib/utils';
 import { cn } from '@/lib/utils';
 import { useUserStore, AppIconType } from '@/store/useUserStore';
@@ -19,9 +19,10 @@ const appIcons: Record<AppIconType, React.ComponentType<{ className?: string }>>
 interface HeaderProps {
   variant?: 'default' | 'light';
   onScanClick?: () => void;
+  onAgentClick?: () => void;
 }
 
-export function Header({ variant = 'default', onScanClick }: HeaderProps) {
+export function Header({ variant = 'default', onScanClick, onAgentClick }: HeaderProps) {
   const today = new Date();
   const { storeName, appIcon } = useUserStore();
   const isLight = variant === 'light';
@@ -32,32 +33,48 @@ export function Header({ variant = 'default', onScanClick }: HeaderProps) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <div className={cn(
-            "flex items-center justify-center w-10 h-10 rounded-xl",
-            isLight ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+            'flex items-center justify-center w-10 h-10 rounded-xl',
+            isLight ? 'bg-white/20 text-white' : 'bg-primary/10 text-primary'
           )}>
             <AppIcon className="w-5 h-5" />
           </div>
           <div>
             <p className={cn(
-              "text-sm",
-              isLight ? "text-white/80" : "text-muted-foreground"
+              'text-sm',
+              isLight ? 'text-white/80' : 'text-muted-foreground'
             )}>{getGreeting()}</p>
             <h1 className={cn(
-              "text-lg font-bold",
-              isLight ? "text-white" : "text-foreground"
+              'text-lg font-bold',
+              isLight ? 'text-white' : 'text-foreground'
             )}>{storeName}</h1>
           </div>
         </div>
         <div className="flex items-center gap-2">
+          {onAgentClick && (
+            <button
+              onClick={onAgentClick}
+              onMouseDown={createRippleEffect}
+              className={cn(
+                'flex items-center justify-center w-10 h-10 rounded-xl ripple transition-colors',
+                isLight
+                  ? 'bg-white/20 text-white hover:bg-white/30 active:bg-white/40'
+                  : 'bg-primary/10 text-primary hover:bg-primary/20 active:bg-primary/30'
+              )}
+              aria-label="Tanya Asisten"
+            >
+              <Sparkles className="w-5 h-5" />
+            </button>
+          )}
+
           {onScanClick && (
             <button
               onClick={onScanClick}
               onMouseDown={createRippleEffect}
               className={cn(
-                "flex items-center justify-center w-10 h-10 rounded-xl ripple transition-colors",
+                'flex items-center justify-center w-10 h-10 rounded-xl ripple transition-colors',
                 isLight
-                  ? "bg-white/20 text-white hover:bg-white/30 active:bg-white/40"
-                  : "bg-primary/10 text-primary hover:bg-primary/20 active:bg-primary/30"
+                  ? 'bg-white/20 text-white hover:bg-white/30 active:bg-white/40'
+                  : 'bg-primary/10 text-primary hover:bg-primary/20 active:bg-primary/30'
               )}
               aria-label="Scan nota"
             >
@@ -68,8 +85,8 @@ export function Header({ variant = 'default', onScanClick }: HeaderProps) {
         </div>
       </div>
       <p className={cn(
-        "text-sm",
-        isLight ? "text-white/80" : "text-muted-foreground"
+        'text-sm',
+        isLight ? 'text-white/80' : 'text-muted-foreground'
       )}>
         {formatDate(today)}
       </p>

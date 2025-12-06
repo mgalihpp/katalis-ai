@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 import { cn, formatRupiah } from '@/lib/utils';
@@ -83,7 +83,7 @@ export function StatCard({
 
   if (compact) {
     return (
-      <div className={cn("bg-background rounded-2xl p-3", fullWidth && "col-span-2")}>
+      <div className={cn('bg-background rounded-2xl p-3', fullWidth && 'col-span-2')}>
         <div className="flex items-center gap-2 mb-1.5">
           <div className={cn('p-1.5 rounded-lg', styles.iconBg)}>
             <Icon className={cn('w-4 h-4', styles.iconColor)} />
@@ -98,7 +98,7 @@ export function StatCard({
   }
 
   return (
-    <div className={cn("bg-background rounded-2xl p-3", fullWidth && "col-span-2")}>
+    <div className={cn('bg-background rounded-2xl p-3', fullWidth && 'col-span-2')}>
       {/* Header: Icon + Trend */}
       <div className="flex items-start justify-between mb-2">
         <div className={cn('p-2 rounded-xl', styles.iconBg)}>

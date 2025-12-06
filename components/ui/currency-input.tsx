@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, ChangeEvent } from 'react';
-import { cn } from '@/lib/utils';
+import { useState, useEffect, ChangeEvent } from "react";
+import { cn } from "@/lib/utils";
 
 interface CurrencyInputProps {
     value: number;
@@ -18,23 +18,24 @@ export function CurrencyInput({
     className,
     prefix = "Rp"
 }: CurrencyInputProps) {
-    const [displayValue, setDisplayValue] = useState('');
+    const [displayValue, setDisplayValue] = useState("");
 
     // Format number with dots
     const formatNumber = (num: number): string => {
-        if (num === 0) return '';
-        return num.toLocaleString('id-ID');
+        if (num === 0) return "";
+        return num.toLocaleString("id-ID");
     };
 
     // Parse formatted string back to number
     const parseNumber = (str: string): number => {
         // Remove all non-digit characters
-        const cleaned = str.replace(/\D/g, '');
+        const cleaned = str.replace(/\D/g, "");
         return cleaned ? parseInt(cleaned, 10) : 0;
     };
 
     // Update display value when prop value changes
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setDisplayValue(formatNumber(value));
     }, [value]);
 

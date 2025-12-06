@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import {
@@ -13,9 +13,15 @@ import {
   ArrowUp,
   ArrowDown,
   Minus,
-  Plus
+  Plus,
 } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerFooter } from '@/components/ui/drawer';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerFooter,
+} from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
@@ -40,9 +46,19 @@ interface StockDetailSheetProps {
   onClose: () => void;
 }
 
-export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetProps) {
-  const { stocks, updateStock, deleteStock, adjustStock, getMovementsByStockId } = useStockStore();
-  const stock = stocks.find(s => s.id === stockId) || null;
+export function StockDetailSheet({
+  stockId,
+  isOpen,
+  onClose,
+}: StockDetailSheetProps) {
+  const {
+    stocks,
+    updateStock,
+    deleteStock,
+    adjustStock,
+    getMovementsByStockId,
+  } = useStockStore();
+  const stock = stocks.find((s) => s.id === stockId) || null;
 
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -64,9 +80,21 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
   const isLowStock = stock.quantity <= stock.min_stock;
   const isOutOfStock = stock.quantity === 0;
 
-  const statusColor = isOutOfStock ? 'destructive' : isLowStock ? 'accent' : 'primary';
-  const statusBg = isOutOfStock ? 'bg-destructive/10' : isLowStock ? 'bg-accent/10' : 'bg-primary/10';
-  const statusText = isOutOfStock ? 'text-destructive' : isLowStock ? 'text-accent' : 'text-primary';
+  const statusColor = isOutOfStock
+    ? 'destructive'
+    : isLowStock
+    ? 'accent'
+    : 'primary';
+  const statusBg = isOutOfStock
+    ? 'bg-destructive/10'
+    : isLowStock
+    ? 'bg-accent/10'
+    : 'bg-primary/10';
+  const statusText = isOutOfStock
+    ? 'text-destructive'
+    : isLowStock
+    ? 'text-accent'
+    : 'text-primary';
 
   const handleEdit = () => {
     setEditData({
@@ -120,11 +148,19 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
     <>
       <Drawer open={isOpen} onOpenChange={onClose}>
         <DrawerContent className="max-h-[90dvh]">
-          <div className="mx-auto w-full max-w-lg flex flex-col overflow-hidden" style={{ maxHeight: '90dvh' }}>
+          <div
+            className="mx-auto w-full max-w-lg flex flex-col overflow-hidden"
+            style={{ maxHeight: '90dvh' }}
+          >
             <DrawerHeader className="shrink-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={cn('w-12 h-12 rounded-2xl flex items-center justify-center', statusBg)}>
+                  <div
+                    className={cn(
+                      'w-12 h-12 rounded-2xl flex items-center justify-center',
+                      statusBg
+                    )}
+                  >
                     <Package className={cn('w-6 h-6', statusText)} />
                   </div>
                   <div>
@@ -132,7 +168,9 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
                       {isEditing ? 'Edit Stok' : stock.name}
                     </DrawerTitle>
                     {!isEditing && (
-                      <p className="text-sm text-muted-foreground">{stock.unit}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {stock.unit}
+                      </p>
                     )}
                   </div>
                 </div>
@@ -162,56 +200,86 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
                 /* Edit Form */
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-xs text-muted-foreground">Nama Barang</Label>
+                    <Label className="text-xs text-muted-foreground">
+                      Nama Barang
+                    </Label>
                     <Input
                       value={editData.name}
-                      onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+                      onChange={(e) =>
+                        setEditData({ ...editData, name: e.target.value })
+                      }
                       className="mt-1 bg-muted/50"
                     />
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-xs text-muted-foreground">Jumlah</Label>
+                      <Label className="text-xs text-muted-foreground">
+                        Jumlah
+                      </Label>
                       <Input
                         type="number"
                         value={editData.quantity}
-                        onChange={(e) => setEditData({ ...editData, quantity: Number(e.target.value) })}
+                        onChange={(e) =>
+                          setEditData({
+                            ...editData,
+                            quantity: Number(e.target.value),
+                          })
+                        }
                         className="mt-1 bg-muted/50"
                       />
                     </div>
                     <div>
-                      <Label className="text-xs text-muted-foreground">Satuan</Label>
+                      <Label className="text-xs text-muted-foreground">
+                        Satuan
+                      </Label>
                       <Input
                         value={editData.unit}
-                        onChange={(e) => setEditData({ ...editData, unit: e.target.value })}
+                        onChange={(e) =>
+                          setEditData({ ...editData, unit: e.target.value })
+                        }
                         className="mt-1 bg-muted/50"
                       />
                     </div>
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label className="text-xs text-muted-foreground">Harga Beli</Label>
+                      <Label className="text-xs text-muted-foreground">
+                        Harga Beli
+                      </Label>
                       <CurrencyInput
                         value={editData.buy_price}
-                        onChange={(val) => setEditData({ ...editData, buy_price: val })}
+                        onChange={(val) =>
+                          setEditData({ ...editData, buy_price: val })
+                        }
                         className="mt-1 bg-muted/50"
                       />
                     </div>
                     <div>
-                      <Label className="text-xs text-muted-foreground">Harga Jual</Label>
+                      <Label className="text-xs text-muted-foreground">
+                        Harga Jual
+                      </Label>
                       <CurrencyInput
                         value={editData.sell_price}
-                        onChange={(val) => setEditData({ ...editData, sell_price: val })}
+                        onChange={(val) =>
+                          setEditData({ ...editData, sell_price: val })
+                        }
                         className="mt-1 bg-muted/50"
                       />
                     </div>
                   </div>
                   <div>
-                    <Label className="text-xs text-muted-foreground">Stok Minimum</Label>
+                    <Label className="text-xs text-muted-foreground">
+                      Stok Minimum
+                    </Label>
                     <Input
                       type="number"
                       value={editData.min_stock}
-                      onChange={(e) => setEditData({ ...editData, min_stock: Number(e.target.value) })}
+                      onChange={(e) =>
+                        setEditData({
+                          ...editData,
+                          min_stock: Number(e.target.value),
+                        })
+                      }
                       className="mt-1 bg-muted/50"
                     />
                   </div>
@@ -221,11 +289,15 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
                 <>
                   {/* Stock Quantity Card */}
                   <div className={cn('p-5 rounded-2xl text-center', statusBg)}>
-                    <p className="text-sm text-muted-foreground mb-1">Jumlah Stok</p>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Jumlah Stok
+                    </p>
                     <p className={cn('text-4xl font-bold', statusText)}>
                       {stock.quantity}
                     </p>
-                    <p className="text-sm text-muted-foreground">{stock.unit}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {stock.unit}
+                    </p>
                     {isOutOfStock && (
                       <div className="flex items-center justify-center gap-1 mt-2 text-destructive">
                         <AlertTriangle className="w-4 h-4" />
@@ -255,7 +327,9 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
                     <div className="p-4 bg-muted/50 rounded-xl">
                       <div className="flex items-center gap-2 mb-2">
                         <TrendingDown className="w-4 h-4 text-purchase" />
-                        <span className="text-xs text-muted-foreground">Harga Beli</span>
+                        <span className="text-xs text-muted-foreground">
+                          Harga Beli
+                        </span>
                       </div>
                       <p className="text-lg font-bold text-foreground">
                         {stock.buy_price ? formatRupiah(stock.buy_price) : '-'}
@@ -264,10 +338,14 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
                     <div className="p-4 bg-muted/50 rounded-xl">
                       <div className="flex items-center gap-2 mb-2">
                         <TrendingUp className="w-4 h-4 text-success" />
-                        <span className="text-xs text-muted-foreground">Harga Jual</span>
+                        <span className="text-xs text-muted-foreground">
+                          Harga Jual
+                        </span>
                       </div>
                       <p className="text-lg font-bold text-foreground">
-                        {stock.sell_price ? formatRupiah(stock.sell_price) : '-'}
+                        {stock.sell_price
+                          ? formatRupiah(stock.sell_price)
+                          : '-'}
                       </p>
                     </div>
                   </div>
@@ -275,25 +353,36 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
                   {/* Profit Margin */}
                   {stock.buy_price && stock.sell_price && (
                     <div className="p-4 bg-success/10 rounded-xl">
-                      <p className="text-xs text-muted-foreground mb-1">Margin Keuntungan</p>
+                      <p className="text-xs text-muted-foreground mb-1">
+                        Margin Keuntungan
+                      </p>
                       <p className="text-xl font-bold text-success">
                         {formatRupiah(stock.sell_price - stock.buy_price)}
-                        <span className="text-sm font-normal text-muted-foreground"> / {stock.unit}</span>
+                        <span className="text-sm font-normal text-muted-foreground">
+                          {' '}
+                          / {stock.unit}
+                        </span>
                       </p>
                     </div>
                   )}
 
                   {/* Min Stock Info */}
                   <div className="flex items-center justify-between p-4 bg-muted/30 rounded-xl">
-                    <span className="text-sm text-muted-foreground">Stok Minimum</span>
-                    <span className="font-medium text-foreground">{stock.min_stock} {stock.unit}</span>
+                    <span className="text-sm text-muted-foreground">
+                      Stok Minimum
+                    </span>
+                    <span className="font-medium text-foreground">
+                      {stock.min_stock} {stock.unit}
+                    </span>
                   </div>
 
                   {/* Movement History */}
                   <div>
                     <div className="flex items-center gap-2 mb-3">
                       <History className="w-4 h-4 text-muted-foreground" />
-                      <h3 className="text-sm font-medium text-muted-foreground">Riwayat Pergerakan</h3>
+                      <h3 className="text-sm font-medium text-muted-foreground">
+                        Riwayat Pergerakan
+                      </h3>
                     </div>
                     {movements.length === 0 ? (
                       <p className="text-sm text-muted-foreground text-center py-4 bg-muted/30 rounded-xl">
@@ -302,11 +391,20 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
                     ) : (
                       <div className="space-y-2">
                         {movements.map((m) => (
-                          <div key={m.id} className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl">
-                            <div className={cn(
-                              'w-8 h-8 rounded-full flex items-center justify-center shrink-0',
-                              m.type === 'in' ? 'bg-success/10' : m.type === 'out' ? 'bg-destructive/10' : 'bg-muted'
-                            )}>
+                          <div
+                            key={m.id}
+                            className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl"
+                          >
+                            <div
+                              className={cn(
+                                'w-8 h-8 rounded-full flex items-center justify-center shrink-0',
+                                m.type === 'in'
+                                  ? 'bg-success/10'
+                                  : m.type === 'out'
+                                  ? 'bg-destructive/10'
+                                  : 'bg-muted'
+                              )}
+                            >
                               {m.type === 'in' ? (
                                 <ArrowUp className="w-4 h-4 text-success" />
                               ) : m.type === 'out' ? (
@@ -316,14 +414,29 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
                               )}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium text-foreground truncate">{m.reason}</p>
-                              <p className="text-xs text-muted-foreground">{formatRelativeTime(m.created_at)}</p>
+                              <p className="text-sm font-medium text-foreground truncate">
+                                {m.reason}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {formatRelativeTime(m.created_at)}
+                              </p>
                             </div>
-                            <span className={cn(
-                              'text-sm font-bold shrink-0',
-                              m.type === 'in' ? 'text-success' : m.type === 'out' ? 'text-destructive' : 'text-foreground'
-                            )}>
-                              {m.type === 'in' ? '+' : m.type === 'out' ? '-' : ''}{Math.abs(m.quantity)}
+                            <span
+                              className={cn(
+                                'text-sm font-bold shrink-0',
+                                m.type === 'in'
+                                  ? 'text-success'
+                                  : m.type === 'out'
+                                  ? 'text-destructive'
+                                  : 'text-foreground'
+                              )}
+                            >
+                              {m.type === 'in'
+                                ? '+'
+                                : m.type === 'out'
+                                ? '-'
+                                : ''}
+                              {Math.abs(m.quantity)}
                             </span>
                           </div>
                         ))}
@@ -366,9 +479,12 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
             <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-2">
               <Trash2 className="w-6 h-6 text-destructive" />
             </div>
-            <AlertDialogTitle className="text-center">Hapus Stok?</AlertDialogTitle>
+            <AlertDialogTitle className="text-center">
+              Hapus Stok?
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
-              Stok "{stock.name}" akan dihapus secara permanen beserta riwayat pergerakannya.
+              Stok &quot;{stock.name}&quot; akan dihapus secara permanen beserta
+              riwayat pergerakannya.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-3 sm:justify-center">
@@ -393,7 +509,10 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
               </div>
               <DrawerTitle>Sesuaikan Stok</DrawerTitle>
               <p className="text-sm text-muted-foreground">
-                Stok saat ini: <span className="font-semibold text-foreground">{stock.quantity} {stock.unit}</span>
+                Stok saat ini:{' '}
+                <span className="font-semibold text-foreground">
+                  {stock.quantity} {stock.unit}
+                </span>
               </p>
             </DrawerHeader>
 
@@ -402,27 +521,44 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
               <div className="flex items-center justify-center gap-4">
                 <button
                   type="button"
-                  onClick={() => setAdjustData(prev => ({ ...prev, quantity: Math.max(0, prev.quantity - 1) }))}
+                  onClick={() =>
+                    setAdjustData((prev) => ({
+                      ...prev,
+                      quantity: Math.max(0, prev.quantity - 1),
+                    }))
+                  }
                   onMouseDown={createRippleEffect}
                   className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 active:scale-95 transition-transform ripple"
                 >
                   <Minus className="w-6 h-6 pointer-events-none" />
                 </button>
                 <div className="text-center min-w-[100px]">
-                  <p className="text-4xl font-bold text-foreground">{adjustData.quantity}</p>
+                  <p className="text-4xl font-bold text-foreground">
+                    {adjustData.quantity}
+                  </p>
                   <p className="text-sm text-muted-foreground">{stock.unit}</p>
                   {adjustData.quantity !== stock.quantity && (
-                    <p className={cn(
-                      'text-sm font-medium mt-1',
-                      adjustData.quantity > stock.quantity ? 'text-success' : 'text-destructive'
-                    )}>
-                      {adjustData.quantity > stock.quantity ? '+' : ''}{adjustData.quantity - stock.quantity}
+                    <p
+                      className={cn(
+                        'text-sm font-medium mt-1',
+                        adjustData.quantity > stock.quantity
+                          ? 'text-success'
+                          : 'text-destructive'
+                      )}
+                    >
+                      {adjustData.quantity > stock.quantity ? '+' : ''}
+                      {adjustData.quantity - stock.quantity}
                     </p>
                   )}
                 </div>
                 <button
                   type="button"
-                  onClick={() => setAdjustData(prev => ({ ...prev, quantity: prev.quantity + 1 }))}
+                  onClick={() =>
+                    setAdjustData((prev) => ({
+                      ...prev,
+                      quantity: prev.quantity + 1,
+                    }))
+                  }
                   onMouseDown={createRippleEffect}
                   className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center text-foreground hover:bg-muted/80 active:scale-95 transition-transform ripple"
                 >
@@ -436,26 +572,46 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
                   <button
                     type="button"
                     key={delta}
-                    onClick={() => setAdjustData(prev => ({ ...prev, quantity: Math.max(0, prev.quantity + delta) }))}
+                    onClick={() =>
+                      setAdjustData((prev) => ({
+                        ...prev,
+                        quantity: Math.max(0, prev.quantity + delta),
+                      }))
+                    }
                     onMouseDown={createRippleEffect}
                     className={cn(
                       'px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ripple',
-                      delta < 0 ? 'bg-destructive/10 text-destructive hover:bg-destructive/20' : 'bg-success/10 text-success hover:bg-success/20'
+                      delta < 0
+                        ? 'bg-destructive/10 text-destructive hover:bg-destructive/20'
+                        : 'bg-success/10 text-success hover:bg-success/20'
                     )}
                   >
-                    {delta > 0 ? '+' : ''}{delta}
+                    {delta > 0 ? '+' : ''}
+                    {delta}
                   </button>
                 ))}
               </div>
 
               {/* Reason Input */}
               <div>
-                <Label className={cn("text-xs text-muted-foreground", error && "text-red-500")}>Alasan</Label>
+                <Label
+                  className={cn(
+                    'text-xs text-muted-foreground',
+                    error && 'text-red-500'
+                  )}
+                >
+                  Alasan
+                </Label>
                 <Input
                   value={adjustData.reason}
-                  onChange={(e) => setAdjustData(prev => ({ ...prev, reason: e.target.value }))}
+                  onChange={(e) =>
+                    setAdjustData((prev) => ({
+                      ...prev,
+                      reason: e.target.value,
+                    }))
+                  }
                   placeholder="Contoh: Koreksi stok, rusak..."
-                  className={cn("mt-1 bg-muted/50", error && "border-red-500")}
+                  className={cn('mt-1 bg-muted/50', error && 'border-red-500')}
                 />
                 {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
               </div>

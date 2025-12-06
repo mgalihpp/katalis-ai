@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { useState } from 'react';
 import { HandCoins, Wallet, Clock, CheckCircle } from 'lucide-react';
@@ -100,8 +100,8 @@ export default function HutangPage() {
                         title="Tidak Ada Piutang"
                         description={
                             filter !== 'all'
-                                ? "Tidak ada piutang dengan status ini"
-                                : "Catat piutang dengan tombol mikrofon  di bawah"
+                                ? 'Tidak ada piutang dengan status ini'
+                                : 'Catat piutang dengan tombol mikrofon  di bawah'
                         }
                     />
                 ) : (

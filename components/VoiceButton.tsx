@@ -1,4 +1,4 @@
-import { Mic, MicOff, Loader2 } from 'lucide-react';
+import { Mic, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { createRippleEffect } from '@/hooks/useRipple';
 
@@ -52,8 +52,8 @@ export function VoiceButton({
           disabled && 'opacity-50 cursor-not-allowed'
         )}
         onMouseDown={(e) => {
-          createRippleEffect(e)
-          handleMouseDown()
+          createRippleEffect(e);
+          handleMouseDown();
         }}
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
@@ -83,9 +83,8 @@ export function VoiceButton({
         {isProcessing
           ? 'Memproses...'
           : isRecording
-            ? 'Lepas untuk selesai'
-            : 'Tekan & tahan untuk bicara'
-        }
+          ? 'Lepas untuk selesai'
+          : 'Tekan & tahan untuk bicara'}
       </p>
     </div>
   );

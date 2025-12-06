@@ -5,86 +5,86 @@ export const KOLOSAL_API_URL = 'https://api.kolosal.ai/ocr';
 
 // GenericReceipt schema for OCR extraction
 export const RECEIPT_SCHEMA = {
-    name: "GenericReceipt",
+    name: 'GenericReceipt',
     schema: {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "title": "GenericReceipt",
-        "description": "Schema umum untuk berbagai jenis nota / struk belanja.",
-        "type": "object",
-        "properties": {
-            "merchant": {
-                "type": "object",
-                "description": "Informasi toko atau merchant.",
-                "properties": {
-                    "name": { "type": "string" },
-                    "address": { "type": "string" },
-                    "contact": { "type": "string" }
+        '$schema': 'http://json-schema.org/draft-07/schema#',
+        'title': 'GenericReceipt',
+        'description': 'Schema umum untuk berbagai jenis nota / struk belanja.',
+        'type': 'object',
+        'properties': {
+            'merchant': {
+                'type': 'object',
+                'description': 'Informasi toko atau merchant.',
+                'properties': {
+                    'name': { 'type': 'string' },
+                    'address': { 'type': 'string' },
+                    'contact': { 'type': 'string' }
                 }
             },
-            "receipt_info": {
-                "type": "object",
-                "description": "Informasi dasar nota.",
-                "properties": {
-                    "receipt_number": { "type": "string" },
-                    "date": { "type": "string" },
-                    "additional_info": {
-                        "type": "object",
-                        "description": "Field tambahan seperti kasir, shift, atau referensi lain.",
-                        "additionalProperties": true
+            'receipt_info': {
+                'type': 'object',
+                'description': 'Informasi dasar nota.',
+                'properties': {
+                    'receipt_number': { 'type': 'string' },
+                    'date': { 'type': 'string' },
+                    'additional_info': {
+                        'type': 'object',
+                        'description': 'Field tambahan seperti kasir, shift, atau referensi lain.',
+                        'additionalProperties': true
                     }
                 }
             },
-            "items": {
-                "type": "array",
-                "description": "Daftar item/barang pada nota.",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "name": { "type": "string" },
-                        "quantity": { "type": ["number", "string"] },
-                        "unit_price": { "type": ["number", "string"] },
-                        "total_price": { "type": ["number", "string"] },
-                        "code": { "type": "string" },
-                        "category": { "type": "string" },
-                        "extra_fields": {
-                            "type": "object",
-                            "description": "Field bebas untuk nota yang punya kolom spesial.",
-                            "additionalProperties": true
+            'items': {
+                'type': 'array',
+                'description': 'Daftar item/barang pada nota.',
+                'items': {
+                    'type': 'object',
+                    'properties': {
+                        'name': { 'type': 'string' },
+                        'quantity': { 'type': ['number', 'string'] },
+                        'unit_price': { 'type': ['number', 'string'] },
+                        'total_price': { 'type': ['number', 'string'] },
+                        'code': { 'type': 'string' },
+                        'category': { 'type': 'string' },
+                        'extra_fields': {
+                            'type': 'object',
+                            'description': 'Field bebas untuk nota yang punya kolom spesial.',
+                            'additionalProperties': true
                         }
                     },
-                    "required": ["name"]
+                    'required': ['name']
                 }
             },
-            "summary": {
-                "type": "object",
-                "description": "Ringkasan pembayaran.",
-                "properties": {
-                    "subtotal": { "type": ["number", "string"] },
-                    "discount": { "type": ["number", "string", "null"] },
-                    "tax": { "type": ["number", "string", "null"] },
-                    "total": { "type": ["number", "string"] }
+            'summary': {
+                'type': 'object',
+                'description': 'Ringkasan pembayaran.',
+                'properties': {
+                    'subtotal': { 'type': ['number', 'string'] },
+                    'discount': { 'type': ['number', 'string', 'null'] },
+                    'tax': { 'type': ['number', 'string', 'null'] },
+                    'total': { 'type': ['number', 'string'] }
                 }
             },
-            "footer": {
-                "type": "object",
-                "description": "Bagian catatan atau tanda tangan.",
-                "properties": {
-                    "notes": { "type": "string" },
-                    "signature": { "type": "string" }
+            'footer': {
+                'type': 'object',
+                'description': 'Bagian catatan atau tanda tangan.',
+                'properties': {
+                    'notes': { 'type': 'string' },
+                    'signature': { 'type': 'string' }
                 }
             },
-            "metadata": {
-                "type": "object",
-                "description": "Informasi tambahan dari OCR atau sistem (opsional).",
-                "properties": {
-                    "confidence_score": { "type": "number" },
-                    "processing_time": { "type": "number" },
-                    "source": { "type": "string" }
+            'metadata': {
+                'type': 'object',
+                'description': 'Informasi tambahan dari OCR atau sistem (opsional).',
+                'properties': {
+                    'confidence_score': { 'type': 'number' },
+                    'processing_time': { 'type': 'number' },
+                    'source': { 'type': 'string' }
                 },
-                "additionalProperties": true
+                'additionalProperties': true
             }
         },
-        "additionalProperties": false
+        'additionalProperties': false
     },
     strict: true
 };

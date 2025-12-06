@@ -1,20 +1,20 @@
-import { Loader2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface LoadingScreenProps {
     message?: string;
     className?: string;
-    variant?: "fullscreen" | "inline";
+    variant?: 'fullscreen' | 'inline';
 }
 
 export function LoadingScreen({
-    message = "Memuat...",
+    message = 'Memuat...',
     className,
-    variant = "fullscreen"
+    variant = 'fullscreen'
 }: LoadingScreenProps) {
-    const containerClasses = variant === "fullscreen"
-        ? "fixed inset-0 z-50 flex flex-col items-center justify-center bg-background"
-        : "flex flex-col items-center justify-center p-8";
+    const containerClasses = variant === 'fullscreen'
+        ? 'fixed inset-0 z-50 flex flex-col items-center justify-center bg-background'
+        : 'flex flex-col items-center justify-center p-8';
 
     return (
         <div className={cn(containerClasses, className)}>
@@ -29,7 +29,7 @@ export function LoadingScreen({
 
                     {/* Inner icon */}
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <Loader2 className="w-8 h-8 text-primary animate-spin" style={{ animationDirection: "reverse" }} />
+                        <Loader2 className="w-8 h-8 text-primary animate-spin" style={{ animationDirection: 'reverse' }} />
                     </div>
                 </div>
 
@@ -39,9 +39,9 @@ export function LoadingScreen({
                         {message}
                     </p>
                     <div className="flex gap-1">
-                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "0ms" }} />
-                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: "300ms" }} />
+                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
                     </div>
                 </div>
             </div>

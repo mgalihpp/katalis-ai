@@ -49,7 +49,7 @@ export const useStockStore = create<StockStore>()(
             s => s.normalized_name === normalizedName
           );
 
-          let updatedStocks = [...state.stocks];
+          const updatedStocks = [...state.stocks];
           let stockId: string;
 
           if (existingIndex >= 0) {
@@ -108,7 +108,7 @@ export const useStockStore = create<StockStore>()(
             s => s.normalized_name === normalizedName
           );
 
-          let updatedStocks = [...state.stocks];
+          const updatedStocks = [...state.stocks];
           let stockId: string;
 
           if (existingIndex >= 0) {

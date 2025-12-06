@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from 'react';
 import {
@@ -11,9 +11,14 @@ import {
   Package,
   Clock,
   MessageSquare,
-  Mic
+  Mic,
 } from 'lucide-react';
-import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from '@/components/ui/drawer';
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
@@ -84,9 +89,14 @@ const typeConfig = {
   },
 };
 
-export function TransactionDetailSheet({ transactionId, isOpen, onClose }: TransactionDetailSheetProps) {
-  const { transactions, updateTransaction, deleteTransaction } = useTransactionStore();
-  const transaction = transactions.find(t => t.id === transactionId) || null;
+export function TransactionDetailSheet({
+  transactionId,
+  isOpen,
+  onClose,
+}: TransactionDetailSheetProps) {
+  const { transactions, updateTransaction, deleteTransaction } =
+    useTransactionStore();
+  const transaction = transactions.find((t) => t.id === transactionId) || null;
 
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -105,7 +115,10 @@ export function TransactionDetailSheet({ transactionId, isOpen, onClose }: Trans
   };
 
   const handleSave = () => {
-    const newTotal = editedItems.reduce((sum, item) => sum + item.total_amount, 0);
+    const newTotal = editedItems.reduce(
+      (sum, item) => sum + item.total_amount,
+      0
+    );
     updateTransaction(transaction.id, {
       items: editedItems,
       note: editedNote || null,
@@ -127,39 +140,59 @@ export function TransactionDetailSheet({ transactionId, isOpen, onClose }: Trans
     newItems[index] = { ...newItems[index], [field]: value };
 
     if (field === 'quantity' || field === 'price_per_unit') {
-      const qty = field === 'quantity' ? Number(value) : (newItems[index].quantity || 1);
-      const price = field === 'price_per_unit' ? Number(value) : (newItems[index].price_per_unit || 0);
+      const qty =
+        field === 'quantity' ? Number(value) : newItems[index].quantity || 1;
+      const price =
+        field === 'price_per_unit'
+          ? Number(value)
+          : newItems[index].price_per_unit || 0;
       newItems[index].total_amount = qty * price;
     }
 
     setEditedItems(newItems);
   };
 
-  const formattedDate = new Date(transaction.created_at).toLocaleDateString('id-ID', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  });
+  const formattedDate = new Date(transaction.created_at).toLocaleDateString(
+    'id-ID',
+    {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    }
+  );
 
-  const formattedTime = new Date(transaction.created_at).toLocaleTimeString('id-ID', {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
+  const formattedTime = new Date(transaction.created_at).toLocaleTimeString(
+    'id-ID',
+    {
+      hour: '2-digit',
+      minute: '2-digit',
+    }
+  );
 
   return (
     <>
       <Drawer open={isOpen} onOpenChange={onClose}>
         <DrawerContent className="max-h-[90dvh]">
-          <div className="mx-auto w-full max-w-lg flex flex-col overflow-hidden" style={{ maxHeight: '90dvh' }}>
+          <div
+            className="mx-auto w-full max-w-lg flex flex-col overflow-hidden"
+            style={{ maxHeight: '90dvh' }}
+          >
             <DrawerHeader className="shrink-0">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={cn('w-12 h-12 rounded-2xl flex items-center justify-center', config.bg)}>
+                  <div
+                    className={cn(
+                      'w-12 h-12 rounded-2xl flex items-center justify-center',
+                      config.bg
+                    )}
+                  >
                     <Icon className={cn('w-6 h-6', config.color)} />
                   </div>
                   <div>
-                    <DrawerTitle className="text-lg text-left">{config.label}</DrawerTitle>
+                    <DrawerTitle className="text-lg text-left">
+                      {config.label}
+                    </DrawerTitle>
                     <p className="text-sm text-muted-foreground flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       {formattedTime}
@@ -192,71 +225,102 @@ export function TransactionDetailSheet({ transactionId, isOpen, onClose }: Trans
               <div className={cn('p-4 rounded-2xl', config.bg)}>
                 <p className="text-sm text-muted-foreground mb-1">Total</p>
                 <p className={cn('text-3xl font-bold', config.color)}>
-                  {config.prefix}{formatRupiah(isEditing
-                    ? editedItems.reduce((sum, i) => sum + i.total_amount, 0)
-                    : transaction.total_amount
+                  {config.prefix}
+                  {formatRupiah(
+                    isEditing
+                      ? editedItems.reduce((sum, i) => sum + i.total_amount, 0)
+                      : transaction.total_amount
                   )}
                 </p>
               </div>
 
               {/* Items List */}
               <div>
-                <h3 className="text-sm font-medium text-muted-foreground mb-3">Detail Item</h3>
+                <h3 className="text-sm font-medium text-muted-foreground mb-3">
+                  Detail Item
+                </h3>
                 <div className="space-y-2">
-                  {(isEditing ? editedItems : transaction.items).map((item, index) => (
-                    <div key={index} className="p-4 bg-muted/50 rounded-xl">
-                      {isEditing ? (
-                        <div className="space-y-3">
-                          <div>
-                            <Label className="text-xs text-muted-foreground">Nama Item</Label>
-                            <Input
-                              value={item.item_name}
-                              onChange={(e) => updateItem(index, 'item_name', e.target.value)}
-                              className="mt-1 bg-background"
-                            />
-                          </div>
-                          <div className="grid grid-cols-3 gap-2">
+                  {(isEditing ? editedItems : transaction.items).map(
+                    (item, index) => (
+                      <div key={index} className="p-4 bg-muted/50 rounded-xl">
+                        {isEditing ? (
+                          <div className="space-y-3">
                             <div>
-                              <Label className="text-xs text-muted-foreground">Jumlah</Label>
+                              <Label className="text-xs text-muted-foreground">
+                                Nama Item
+                              </Label>
                               <Input
-                                type="number"
-                                value={item.quantity || ''}
-                                onChange={(e) => updateItem(index, 'quantity', Number(e.target.value))}
+                                value={item.item_name}
+                                onChange={(e) =>
+                                  updateItem(index, 'item_name', e.target.value)
+                                }
                                 className="mt-1 bg-background"
                               />
                             </div>
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Satuan</Label>
-                              <Input
-                                value={item.unit || ''}
-                                onChange={(e) => updateItem(index, 'unit', e.target.value)}
-                                className="mt-1 bg-background"
-                              />
-                            </div>
-                            <div>
-                              <Label className="text-xs text-muted-foreground">Harga</Label>
-                              <CurrencyInput
-                                value={item.price_per_unit || 0}
-                                onChange={(val) => updateItem(index, 'price_per_unit', val)}
-                                className="mt-1 bg-background"
-                              />
+                            <div className="grid grid-cols-3 gap-2">
+                              <div>
+                                <Label className="text-xs text-muted-foreground">
+                                  Jumlah
+                                </Label>
+                                <Input
+                                  type="number"
+                                  value={item.quantity || ''}
+                                  onChange={(e) =>
+                                    updateItem(
+                                      index,
+                                      'quantity',
+                                      Number(e.target.value)
+                                    )
+                                  }
+                                  className="mt-1 bg-background"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-muted-foreground">
+                                  Satuan
+                                </Label>
+                                <Input
+                                  value={item.unit || ''}
+                                  onChange={(e) =>
+                                    updateItem(index, 'unit', e.target.value)
+                                  }
+                                  className="mt-1 bg-background"
+                                />
+                              </div>
+                              <div>
+                                <Label className="text-xs text-muted-foreground">
+                                  Harga
+                                </Label>
+                                <CurrencyInput
+                                  value={item.price_per_unit || 0}
+                                  onChange={(val) =>
+                                    updateItem(index, 'price_per_unit', val)
+                                  }
+                                  className="mt-1 bg-background"
+                                />
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-medium text-foreground">{item.item_name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {item.quantity} {item.unit || 'pcs'}
-                              {item.price_per_unit && ` x ${formatRupiah(item.price_per_unit)}`}
+                        ) : (
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <p className="font-medium text-foreground">
+                                {item.item_name}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {item.quantity} {item.unit || 'pcs'}
+                                {item.price_per_unit &&
+                                  ` x ${formatRupiah(item.price_per_unit)}`}
+                              </p>
+                            </div>
+                            <p className="font-semibold text-foreground">
+                              {formatRupiah(item.total_amount)}
                             </p>
                           </div>
-                          <p className="font-semibold text-foreground">{formatRupiah(item.total_amount)}</p>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                        )}
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
 
@@ -264,7 +328,9 @@ export function TransactionDetailSheet({ transactionId, isOpen, onClose }: Trans
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <MessageSquare className="w-4 h-4 text-muted-foreground" />
-                  <h3 className="text-sm font-medium text-muted-foreground">Catatan</h3>
+                  <h3 className="text-sm font-medium text-muted-foreground">
+                    Catatan
+                  </h3>
                 </div>
                 {isEditing ? (
                   <Input
@@ -275,7 +341,11 @@ export function TransactionDetailSheet({ transactionId, isOpen, onClose }: Trans
                   />
                 ) : (
                   <p className="text-sm text-foreground">
-                    {transaction.note || <span className="text-muted-foreground italic">Tidak ada catatan</span>}
+                    {transaction.note || (
+                      <span className="text-muted-foreground italic">
+                        Tidak ada catatan
+                      </span>
+                    )}
                   </p>
                 )}
               </div>
@@ -284,13 +354,19 @@ export function TransactionDetailSheet({ transactionId, isOpen, onClose }: Trans
               <div className="flex items-start gap-3 p-3 bg-muted/30 rounded-xl">
                 <Mic className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Teks asli suara</p>
-                  <p className="text-sm text-foreground italic">"{transaction.raw_text}"</p>
+                  <p className="text-xs text-muted-foreground mb-1">
+                    Teks asli suara
+                  </p>
+                  <p className="text-sm text-foreground italic">
+                    &quot;{transaction.raw_text}&quot;
+                  </p>
                 </div>
               </div>
 
               {/* Date */}
-              <p className="text-xs text-muted-foreground text-center">{formattedDate}</p>
+              <p className="text-xs text-muted-foreground text-center">
+                {formattedDate}
+              </p>
             </div>
 
             {/* Footer Actions for Edit Mode */}
@@ -324,9 +400,12 @@ export function TransactionDetailSheet({ transactionId, isOpen, onClose }: Trans
             <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-2">
               <Trash2 className="w-6 h-6 text-destructive" />
             </div>
-            <AlertDialogTitle className="text-center">Hapus Transaksi?</AlertDialogTitle>
+            <AlertDialogTitle className="text-center">
+              Hapus Transaksi?
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-center">
-              Transaksi ini akan dihapus secara permanen dan tidak dapat dikembalikan.
+              Transaksi ini akan dihapus secara permanen dan tidak dapat
+              dikembalikan.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-3 sm:justify-center">
