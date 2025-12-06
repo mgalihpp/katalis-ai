@@ -2,6 +2,7 @@
 
 import { Package, AlertTriangle } from 'lucide-react';
 import { cn, formatRupiah } from '@/lib/utils';
+import { createRippleEffect } from '@/hooks/useRipple';
 import type { StockItem } from '@/types';
 
 interface StockCardProps {
@@ -16,7 +17,8 @@ export function StockCard({ stock, onClick }: StockCardProps) {
   return (
     <div
       onClick={onClick}
-      className="bg-muted/30 rounded-2xl p-4 active:bg-muted/50 transition-colors cursor-pointer"
+      onMouseDown={createRippleEffect}
+      className="bg-muted/30 rounded-2xl p-4 active:bg-muted/50 transition-colors cursor-pointer ripple"
     >
       <div className="flex items-center gap-3">
         {/* Icon */}

@@ -32,17 +32,17 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showAdjustDialog, setShowAdjustDialog] = useState(false);
-  const [editData, setEditData] = useState({ 
-    name: '', 
-    quantity: 0, 
+  const [editData, setEditData] = useState({
+    name: '',
+    quantity: 0,
     pack_unit: '',      // Satuan pack (dus, pak, peti)
     unit_unit: '',      // Satuan kecil (pcs, bungkus)
-    units_per_pack: 0, 
-    modal_per_pack: 0, 
-    modal_per_unit: 0, 
-    sell_per_unit: 0, 
-    sell_per_pack: 0, 
-    min_stock: 5 
+    units_per_pack: 0,
+    modal_per_pack: 0,
+    modal_per_unit: 0,
+    sell_per_unit: 0,
+    sell_per_pack: 0,
+    min_stock: 5
   });
   const [adjustData, setAdjustData] = useState({ quantity: 0, reason: '' });
   const [error, setError] = useState('');
@@ -58,15 +58,15 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
 
   const handleEdit = () => {
     setEditData({
-      name: stock.name, 
-      quantity: stock.quantity, 
+      name: stock.name,
+      quantity: stock.quantity,
       pack_unit: stock.pack_unit || stock.unit || 'dus',   // Read from pack_unit, fallback to unit
       unit_unit: stock.unit_unit || 'pcs',                  // Read from unit_unit
       units_per_pack: stock.units_per_pack || 0,
-      modal_per_pack: stock.modal_per_pack || 0, 
-      modal_per_unit: stock.modal_per_unit || 0, 
-      sell_per_unit: stock.sell_per_unit || 0, 
-      sell_per_pack: stock.sell_per_pack || 0, 
+      modal_per_pack: stock.modal_per_pack || 0,
+      modal_per_unit: stock.modal_per_unit || 0,
+      sell_per_unit: stock.sell_per_unit || 0,
+      sell_per_pack: stock.sell_per_pack || 0,
       min_stock: stock.min_stock,
     });
     setIsEditing(true);
@@ -76,14 +76,14 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
     // Note: quantity is NOT updated here - it's read-only
     // Stock quantity should only change via transactions or explicit adjustment
     updateStock(stock.id, {
-      name: editData.name, 
+      name: editData.name,
       unit: editData.pack_unit,              // Legacy: same as pack_unit
       pack_unit: editData.pack_unit,         // Satuan pack
       unit_unit: editData.unit_unit,         // Satuan kecil
       units_per_pack: editData.units_per_pack || null,
-      modal_per_pack: editData.modal_per_pack || null, 
+      modal_per_pack: editData.modal_per_pack || null,
       modal_per_unit: editData.modal_per_unit || null,
-      sell_per_unit: editData.sell_per_unit || null, 
+      sell_per_unit: editData.sell_per_unit || null,
       sell_per_pack: editData.sell_per_pack || null,
       min_stock: editData.min_stock,
     });
@@ -108,11 +108,11 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
     setError('');
     toast.success('Stok berhasil disesuaikan');
   };
-  
+
   const handlePurchase = (qty: number, pricePerPack: number, note: string) => {
     // Create a purchase transaction using the same format as voice purchases
     const packUnit = stock.pack_unit || stock.unit || 'dus';
-    
+
     addTransaction({
       type: 'purchase',
       transactions: [{
@@ -128,7 +128,7 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
       raw_text: `Beli ${qty} ${packUnit} ${stock.name} @ ${pricePerPack}`,
       confidence: 1.0,
     });
-    
+
     setShowAdjustDialog(false);
     toast.success(`Pembelian ${qty} ${packUnit} ${stock.name} berhasil dicatat!`);
   };
@@ -177,7 +177,7 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
 
             <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-5">
               {isEditing ? (
-                <StockEditForm editData={editData} setEditData={setEditData} onSave={handleSave} onCancel={() => setIsEditing(false)} />
+                <StockEditForm editData={editData} setEditData={setEditData} />
               ) : (
                 <>
                   <StockQuantityCard stock={stock} statusBg={statusBg} statusText={statusText} isLowStock={isLowStock} isOutOfStock={isOutOfStock} />
@@ -191,6 +191,28 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
                 </>
               )}
             </div>
+
+            {/* Footer Actions for Edit Mode */}
+            {isEditing && (
+              <div className="shrink-0 px-6 py-4 pb-8 bg-background border-t border-border">
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setIsEditing(false)}
+                    onMouseDown={createRippleEffect}
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-muted text-muted-foreground rounded-xl font-medium ripple"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    onClick={handleSave}
+                    onMouseDown={createRippleEffect}
+                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-primary text-primary-foreground rounded-xl font-medium ripple"
+                  >
+                    Simpan
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </DrawerContent>
       </Drawer>

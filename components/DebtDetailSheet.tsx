@@ -297,8 +297,8 @@ export function DebtDetailSheet({
                           debt.status === 'paid'
                             ? 'bg-success'
                             : debt.status === 'partial'
-                            ? 'bg-accent'
-                            : 'bg-debt'
+                              ? 'bg-accent'
+                              : 'bg-debt'
                         )}
                         style={{ width: `${progressPercent}%` }}
                       />
@@ -317,11 +317,11 @@ export function DebtDetailSheet({
                       {debt.transactions.map((t) => (
                         <div
                           key={t.id}
-                          className="flex items-center gap-3 p-3 bg-muted/30 rounded-xl"
+                          className="flex items-start gap-3 p-3 bg-muted/30 rounded-xl"
                         >
                           <div
                             className={cn(
-                              'w-8 h-8 rounded-full flex items-center justify-center shrink-0',
+                              'w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5',
                               t.type === 'add' ? 'bg-debt/10' : 'bg-success/10'
                             )}
                           >
@@ -332,23 +332,29 @@ export function DebtDetailSheet({
                             )}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground">
-                              {t.type === 'add' ? 'Hutang Baru' : 'Pembayaran'}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {formatRelativeTime(t.created_at)}
-                              {t.note && ` • ${t.note}`}
-                            </p>
+                            <div className="flex items-center justify-between mb-0.5">
+                              <p className="text-sm font-medium text-foreground">
+                                {t.type === 'add' ? 'Hutang Baru' : 'Pembayaran'}
+                              </p>
+                              <span
+                                className={cn(
+                                  'text-sm font-bold shrink-0',
+                                  t.type === 'add' ? 'text-debt' : 'text-success'
+                                )}
+                              >
+                                {t.type === 'add' ? '+' : '-'}
+                                {formatRupiah(t.amount)}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <p className="text-xs text-muted-foreground/80 truncate mr-2">
+                                {t.note || '-'}
+                              </p>
+                              <p className="text-xs text-muted-foreground shrink-0">
+                                {formatRelativeTime(t.created_at)}
+                              </p>
+                            </div>
                           </div>
-                          <span
-                            className={cn(
-                              'text-sm font-bold shrink-0',
-                              t.type === 'add' ? 'text-debt' : 'text-success'
-                            )}
-                          >
-                            {t.type === 'add' ? '+' : '-'}
-                            {formatRupiah(t.amount)}
-                          </span>
                         </div>
                       ))}
                     </div>

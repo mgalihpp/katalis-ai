@@ -3,7 +3,6 @@
 import { Input } from '@/components/ui/input';
 import { CurrencyInput } from '@/components/ui/currency-input';
 import { Label } from '@/components/ui/label';
-import { createRippleEffect } from '@/hooks/useRipple';
 
 export interface EditData {
     name: string;
@@ -21,11 +20,9 @@ export interface EditData {
 interface StockEditFormProps {
     editData: EditData;
     setEditData: React.Dispatch<React.SetStateAction<EditData>>;
-    onSave: () => void;
-    onCancel: () => void;
 }
 
-export function StockEditForm({ editData, setEditData, onSave, onCancel }: StockEditFormProps) {
+export function StockEditForm({ editData, setEditData }: StockEditFormProps) {
     // Calculate total stock in small units (read-only display)
     const totalSmallUnits = editData.units_per_pack > 0
         ? editData.quantity * editData.units_per_pack
@@ -151,26 +148,6 @@ export function StockEditForm({ editData, setEditData, onSave, onCancel }: Stock
                         onChange={(e) => setEditData({ ...editData, min_stock: Number(e.target.value) })}
                         className="mt-1 bg-muted/50"
                     />
-                </div>
-            </div>
-
-            {/* Footer Actions */}
-            <div className="shrink-0 px-6 py-4 pb-8 bg-background border-t border-border -mx-6 mt-5">
-                <div className="flex gap-3">
-                    <button
-                        onClick={onCancel}
-                        onMouseDown={createRippleEffect}
-                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-muted text-muted-foreground rounded-xl font-medium ripple"
-                    >
-                        Batal
-                    </button>
-                    <button
-                        onClick={onSave}
-                        onMouseDown={createRippleEffect}
-                        className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 bg-primary text-primary-foreground rounded-xl font-medium ripple"
-                    >
-                        Simpan
-                    </button>
                 </div>
             </div>
         </>

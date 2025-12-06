@@ -2,6 +2,7 @@
 
 import { HandCoins, Clock, CheckCircle, AlertTriangle } from 'lucide-react';
 import { cn, formatRupiah } from '@/lib/utils';
+import { createRippleEffect } from '@/hooks/useRipple';
 import type { Debt } from '@/types';
 
 interface DebtCardProps {
@@ -38,7 +39,8 @@ export function DebtCard({ debt, onClick }: DebtCardProps) {
   return (
     <div
       onClick={onClick}
-      className="bg-muted/30 rounded-2xl p-4 active:bg-muted/50 transition-colors cursor-pointer"
+      onMouseDown={createRippleEffect}
+      className="bg-muted/30 rounded-2xl p-4 active:bg-muted/50 transition-colors cursor-pointer ripple"
     >
       <div className="flex items-center gap-3">
         {/* Icon */}
