@@ -23,7 +23,7 @@ interface VoiceContextType {
 const VoiceContext = createContext<VoiceContextType | null>(null);
 
 // Minimum audio size in bytes (skip if too small - likely empty/silent)
-const MIN_AUDIO_SIZE = 5000; // ~5KB
+const MIN_AUDIO_SIZE = 1000; // ~1KB
 
 // Process voice via OpenAI API
 async function processVoice(audioBlob: Blob): Promise<{ transcript: string; parsed: ParsedVoiceResult }> {
@@ -57,10 +57,15 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const [currentResult, setCurrentResult] = useState<{ transcript: string; parsed: ParsedVoiceResult } | null>(null);
 
   const handleVoicePress = useCallback(() => {
+    // Don't start new recording if modal is open or processing
+    if (showModal || state.isProcessing) return;
     startRecording();
-  }, [startRecording]);
+  }, [startRecording, showModal, state.isProcessing]);
 
   const handleVoiceRelease = useCallback(async () => {
+    // Only process if we were actually recording
+    if (!state.isRecording) return;
+
     const audioBlob = await stopRecording();
     if (!audioBlob) return;
 
@@ -77,7 +82,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
         : 'Gagal memproses suara. Silakan coba lagi.';
       setError(errorMessage);
     }
-  }, [stopRecording, setProcessing, setError]);
+  }, [state.isRecording, stopRecording, setProcessing, setError]);
 
   const handleConfirm = useCallback(() => {
     if (currentResult) {

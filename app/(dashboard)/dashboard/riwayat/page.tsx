@@ -88,12 +88,12 @@ export default function RiwayatPage() {
     return (
         <div className="min-h-screen bg-primary">
             {/* Header */}
-            <div className="sticky top-0 z-0">
-                <Header storeName="Riwayat Transaksi" variant="light" />
-            </div>
+            <header className="sticky top-0 bg-primary z-0 px-4 pt-4">
+                <h1 className="text-xl font-bold text-white mb-4">Riwayat Transaksi</h1>
+            </header>
 
             {/* Main Content Sheet */}
-            <div className="relative z-10 bg-background rounded-t-3xl px-4 pt-6 pb-24 min-h-[80dvh] shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="relative z-10 bg-background rounded-t-3xl px-4 pt-6 pb-24 min-h-[90dvh] shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)]">
                 {/* Search */}
                 <div className="relative mb-4">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />

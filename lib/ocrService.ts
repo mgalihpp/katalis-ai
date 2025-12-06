@@ -1,10 +1,10 @@
 // OCR Service for Kolosal AI
 import type { OCRReceiptResult } from '@/types';
 
-const KOLOSAL_API_URL = 'https://api.kolosal.ai/ocr';
+export const KOLOSAL_API_URL = 'https://api.kolosal.ai/ocr';
 
 // GenericReceipt schema for OCR extraction
-const RECEIPT_SCHEMA = {
+export const RECEIPT_SCHEMA = {
     name: "GenericReceipt",
     schema: {
         "$schema": "http://json-schema.org/draft-07/schema#",

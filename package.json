@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix ."
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -36,11 +37,14 @@
     "@radix-ui/react-toggle": "^1.1.10",
     "@radix-ui/react-toggle-group": "^1.1.11",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@tailwindcss/typography": "^0.5.19",
+    "@uploadthing/react": "^7.3.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.1.0",
     "embla-carousel-react": "^8.6.0",
+    "firebase": "^12.6.0",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.555.0",
     "next": "16.0.7",
@@ -50,10 +54,13 @@
     "react-day-picker": "^9.11.3",
     "react-dom": "19.2.0",
     "react-hook-form": "^7.68.0",
+    "react-markdown": "^10.1.0",
     "react-resizable-panels": "^3.0.6",
     "recharts": "2.15.4",
+    "remark-gfm": "^4.0.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
+    "uploadthing": "^7.7.4",
     "vaul": "^1.1.2",
     "zod": "^4.1.13",
     "zustand": "^5.0.9"

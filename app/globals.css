@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 @import "tw-animate-css";
 
 
@@ -225,6 +226,11 @@
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
+
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
 }
 
 @layer components {
@@ -448,4 +454,42 @@
 .scrollbar-none {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Prose styling for chat messages */
+.prose {
+  --tw-prose-body: hsl(var(--foreground));
+  --tw-prose-headings: hsl(var(--foreground));
+  --tw-prose-links: hsl(var(--primary));
+  --tw-prose-bold: hsl(var(--foreground));
+  --tw-prose-code: hsl(var(--foreground));
+  --tw-prose-pre-bg: hsl(var(--muted));
+}
+
+.prose-invert {
+  --tw-prose-body: hsl(var(--primary-foreground));
+  --tw-prose-headings: hsl(var(--primary-foreground));
+  --tw-prose-links: hsl(var(--primary-foreground));
+  --tw-prose-bold: hsl(var(--primary-foreground));
+  --tw-prose-code: hsl(var(--primary-foreground));
+}
+
+.prose p {
+  margin: 0;
+}
+
+.prose ul,
+.prose ol {
+  margin: 0.5em 0;
+}
+
+.prose code {
+  background: hsl(var(--muted) / 0.3);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.prose-invert code {
+  background: hsl(var(--primary-foreground) / 0.1);
 }

@@ -70,12 +70,14 @@ export default function StockPage() {
 
     return (
         <div className="min-h-screen bg-primary">
-            <div className="sticky top-0 z-0">
-                <Header storeName="Stok Barang" variant="light" />
-            </div>
+            <header className="sticky top-0 bg-primary z-0 px-4 pt-4">
+                <h1 className="text-xl font-bold text-white mb-4">Stok Barang</h1>
+
+
+            </header>
 
             {/* Main Content Sheet */}
-            <div className="relative z-10 bg-background rounded-t-3xl px-4 pt-6 pb-24 min-h-[80dvh] shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)]">
+            <div className="relative z-10 bg-background rounded-t-3xl px-4 pt-6 pb-24 min-h-[90dvh] shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)]">
                 {/* Stats */}
                 <div className="mb-6">
                     <div className="grid grid-cols-3 gap-3">

@@ -45,9 +45,26 @@ export function useVoiceRecorder(): UseVoiceRecorderReturn {
         }
       });
 
-      // Create MediaRecorder with webm format (widely supported)
+      // Create MediaRecorder with fallback MIME types for browser compatibility
+      const mimeTypes = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/ogg;codecs=opus',
+        'audio/mp4',
+      ];
+
+      let selectedMimeType = mimeTypes[0];
+      for (const mimeType of mimeTypes) {
+        if (MediaRecorder.isTypeSupported(mimeType)) {
+          selectedMimeType = mimeType;
+          break;
+        }
+      }
+
+      console.log('Using audio MIME type:', selectedMimeType);
+
       const mediaRecorder = new MediaRecorder(stream, {
-        mimeType: 'audio/webm;codecs=opus',
+        mimeType: selectedMimeType,
       });
 
       audioChunksRef.current = [];

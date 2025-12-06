@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
-import { Banknote, ShoppingCart, HandCoins, TrendingUp, TrendingDown, History, Receipt, Crosshair } from 'lucide-react';
+import { Banknote, ShoppingCart, HandCoins, TrendingUp, TrendingDown, Receipt, Crosshair } from 'lucide-react';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { Transaction, Debt, OCRReceiptResult } from '@/types';
@@ -17,12 +17,10 @@ import { DebtDetailSheet } from '@/components/DebtDetailSheet';
 import { TargetEditDrawer } from '@/components/TargetEditDrawer';
 import { OcrScannerDrawer } from '@/components/OcrScannerDrawer';
 import { OcrResultDrawer } from '@/components/OcrResultDrawer';
-import { processReceiptOCR, parseOCRNumber } from '@/lib/ocrService';
+import { AgentDrawer } from '@/components/AgentDrawer';
+import { parseOCRNumber } from '@/lib/ocrService';
 import { toast } from 'sonner';
 import Link from 'next/link';
-
-// OCR API Key - should be in env in production
-const OCR_API_KEY = process.env.NEXT_PUBLIC_KOLOSAL_API_KEY || '';
 
 export default function DashboardPage() {
     const { getTodayTransactions, getTodaySummary, debts, transactions, addTransaction } = useTransactionStore();
@@ -36,6 +34,9 @@ export default function DashboardPage() {
     const [showOcrResult, setShowOcrResult] = useState(false);
     const [ocrResult, setOcrResult] = useState<OCRReceiptResult | null>(null);
     const [isOcrProcessing, setIsOcrProcessing] = useState(false);
+
+    // Agent State
+    const [showAgent, setShowAgent] = useState(false);
 
     const {
         isProcessing,
@@ -59,26 +60,24 @@ export default function DashboardPage() {
     }, []);
 
     const handleOcrImageCaptured = useCallback(async (base64: string) => {
-        if (!OCR_API_KEY) {
-            toast.error('API Key tidak ditemukan. Tambahkan NEXT_PUBLIC_KOLOSAL_API_KEY ke environment.');
-            return;
-        }
-
         setIsOcrProcessing(true);
 
         try {
-            const response = await processReceiptOCR(base64, {
-                apiKey: OCR_API_KEY,
-                autoFix: true,
-                language: 'id',
+            // Call secure API route instead of direct API call
+            const response = await fetch('/api/ocr', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ imageData: base64 }),
             });
 
-            if (response.success && response.data) {
-                setOcrResult(response.data);
+            const result = await response.json();
+
+            if (response.ok && result.success && result.data) {
+                setOcrResult(result.data);
                 setShowOcrScanner(false);
                 setShowOcrResult(true);
             } else {
-                toast.error(response.error || 'Gagal memproses OCR');
+                toast.error(result.error || 'Gagal memproses OCR');
             }
         } catch (err) {
             console.error('OCR Error:', err);
@@ -188,7 +187,11 @@ export default function DashboardPage() {
     return (
         <div className="min-h-screen bg-primary">
             <div className="sticky top-0 z-0">
-                <Header variant="light" onScanClick={handleScanClick} />
+                <Header
+                    variant="light"
+                    onScanClick={handleScanClick}
+                    onAgentClick={() => setShowAgent(true)}
+                />
 
                 {/* Stats Grid */}
                 <div className="px-4 mb-6">
@@ -274,8 +277,7 @@ export default function DashboardPage() {
                             href="/dashboard/riwayat"
                             className="text-sm text-primary font-medium hover:underline flex items-center gap-1"
                         >
-                            <History className="w-4 h-4" />
-                            Semua
+                            Lihat Semua
                         </Link>
                     </div>
 
@@ -351,6 +353,12 @@ export default function DashboardPage() {
                 }}
                 result={ocrResult}
                 onConfirm={handleOcrConfirm}
+            />
+
+            {/* Agent Drawer */}
+            <AgentDrawer
+                isOpen={showAgent}
+                onClose={() => setShowAgent(false)}
             />
 
             <BottomNav />
