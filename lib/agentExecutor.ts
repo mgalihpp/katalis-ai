@@ -29,7 +29,7 @@ export function executeAgentTool(
             const stock = stockStore.getStockByName(args.item_name);
             return JSON.stringify(
                 stock
-                    ? { name: stock.name, quantity: stock.quantity, unit: stock.unit, price: stock.sell_price }
+                    ? { name: stock.name, quantity: stock.quantity, unit: stock.unit, price: stock.sell_per_unit }
                     : { status: 'stok tidak ditemukan', item: args.item_name }
             );
         }

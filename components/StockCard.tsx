@@ -35,7 +35,7 @@ export function StockCard({ stock, onClick }: StockCardProps) {
         <div className="flex-1 min-w-0">
           <h3 className="text-[15px] font-semibold text-foreground capitalize truncate">{stock.name}</h3>
           <p className="text-sm text-muted-foreground">
-            {stock.sell_price ? formatRupiah(stock.sell_price) : stock.unit}
+            {stock.sell_per_unit ? formatRupiah(stock.sell_per_unit) : stock.unit}
           </p>
         </div>
 
