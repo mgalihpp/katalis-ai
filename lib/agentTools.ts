@@ -83,9 +83,25 @@ export const AGENT_TOOLS: ChatCompletionTool[] = [
             },
         },
     },
+    {
+        type: 'function',
+        function: {
+            name: 'get_all_debts',
+            description: 'Melihat daftar semua orang yang punya hutang belum lunas',
+            parameters: {
+                type: 'object',
+                properties: {
+                    status: {
+                        type: 'string',
+                        description: 'Filter status hutang: all, pending, partial (default: all)',
+                    },
+                },
+            },
+        },
+    },
 ];
 
-export const AGENT_SYSTEM_PROMPT = `Kamu adalah "Asisten Warung Pintar" untuk aplikasi Katalis AI. Kamu adalah AI agent yang memiliki akses ke data warung REAL-TIME melalui function tools.
+export const AGENT_SYSTEM_PROMPT = `Kamu adalah "Asisten" untuk aplikasi Katalis AI. Kamu adalah AI agent yang memiliki akses ke data warung REAL-TIME melalui function tools.
 
 ATURAN PENTING:
 1. **WAJIB GUNAKAN TOOLS** untuk pertanyaan tentang data warung. JANGAN pernah menebak atau berhalusinasi angka/data.
@@ -95,6 +111,7 @@ ATURAN PENTING:
    ✅ "barang apa yang stoknya menipis?" → CALL get_low_stock({ "threshold": 5 })
    ✅ "barang apa yang paling laku hari ini?" → CALL get_top_selling({ "limit": 5 })
    ✅ "hutang Bu Tejo berapa?" → CALL check_debt({"debtor_name": "Bu Tejo"})
+   ✅ "siapa saja yang punya hutang?" → CALL get_all_debts({})
    ✅ "omset hari ini berapa?" → CALL get_today_summary({ "detailed": false })
    ✅ "ringkasan hari ini" → CALL get_today_summary({ "detailed": false })
    ✅ "laporan penjualan detail hari ini" → CALL get_today_summary({ "detailed": true })
@@ -104,7 +121,8 @@ ATURAN PENTING:
 
 TOOLS YANG TERSEDIA:
 - check_stock: Cek stok barang tertentu
-- check_debt: Cek hutang pelanggan  
+- check_debt: Cek hutang pelanggan tertentu (harus ada nama)
+- get_all_debts: Lihat daftar SEMUA orang yang punya hutang
 - get_today_summary: Lihat ringkasan penjualan & pembelian hari ini
 - get_low_stock: Lihat barang yang stoknya menipis
 - get_top_selling: Lihat barang paling laris hari ini

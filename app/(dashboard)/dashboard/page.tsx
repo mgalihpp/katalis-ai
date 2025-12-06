@@ -11,8 +11,9 @@ import {
   Crosshair,
 } from 'lucide-react';
 import { useTransactionStore } from '@/store/useTransactionStore';
+import { useStockStore } from '@/store/useStockStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
-import { Transaction, Debt, OCRReceiptResult } from '@/types';
+import { Transaction, OCRReceiptResult } from '@/types';
 import { useVoice } from '@/context/VoiceContext';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
@@ -38,10 +39,11 @@ export default function DashboardPage() {
     transactions,
     addTransaction,
   } = useTransactionStore();
+  const { updateStockFromTransaction } = useStockStore();
   const { targetAmount, targetPeriod } = useSettingsStore();
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
-  const [selectedDebt, setSelectedDebt] = useState<Debt | null>(null);
+  const [selectedDebtId, setSelectedDebtId] = useState<string | null>(null);
   const [showTargetEdit, setShowTargetEdit] = useState(false);
 
   // OCR State
@@ -103,12 +105,12 @@ export default function DashboardPage() {
   }, []);
 
   const handleOcrConfirm = useCallback(
-    (result: OCRReceiptResult) => {
+    (result: OCRReceiptResult, addToStock: boolean) => {
       // Convert OCR result to ParsedVoiceResult format for addTransaction
       const items = (result.items || []).map((item) => ({
         item_name: item.name,
         quantity: parseOCRNumber(item.quantity),
-        unit: null,
+        unit: item.unit || 'pcs', // Use unit from OCR item
         price_per_unit: parseOCRNumber(item.unit_price),
         total_amount: parseOCRNumber(item.total_price),
       }));
@@ -126,15 +128,36 @@ export default function DashboardPage() {
         confidence: result.metadata?.confidence_score || 0.8,
       });
 
-      toast.success('Transaksi berhasil disimpan!');
+      // Update stock if enabled
+      if (addToStock) {
+        items.forEach((item) => {
+          if (item.item_name && item.quantity) {
+            updateStockFromTransaction(
+              item.item_name,
+              item.quantity,
+              'purchase',
+              item.unit || 'pcs', // Use unit from item
+              item.price_per_unit || undefined
+            );
+          }
+        });
+      }
+
+      toast.success(
+        addToStock
+          ? 'Transaksi disimpan & stok diperbarui!'
+          : 'Transaksi berhasil disimpan!'
+      );
       setShowOcrResult(false);
       setOcrResult(null);
     },
-    [addTransaction]
+    [addTransaction, updateStockFromTransaction]
   );
 
   const todayTransactions = getTodayTransactions();
   const summary = getTodaySummary();
+  // Derive selectedDebt from store to ensure reactivity
+  const selectedDebt = selectedDebtId ? debts.find(d => d.id === selectedDebtId) || null : null;
   const pendingDebts = debts.filter((d) => d.status !== 'paid');
   const totalPendingDebt = pendingDebts.reduce(
     (sum, d) => sum + d.remaining_amount,
@@ -203,7 +226,7 @@ export default function DashboardPage() {
       }
 
       if (relatedDebt) {
-        setSelectedDebt(relatedDebt);
+        setSelectedDebtId(relatedDebt.id);
       }
     } else {
       setSelectedTransaction(transaction);
@@ -231,15 +254,14 @@ export default function DashboardPage() {
               className="col-span-2 cursor-pointer active:scale-[0.98] transition-transform"
             >
               <StatCard
-                title={`Target ${
-                  targetPeriod === 'daily'
-                    ? 'Harian'
-                    : targetPeriod === 'weekly'
+                title={`Target ${targetPeriod === 'daily'
+                  ? 'Harian'
+                  : targetPeriod === 'weekly'
                     ? 'Mingguan'
                     : targetPeriod === 'monthly'
-                    ? 'Bulanan'
-                    : 'Tahunan'
-                }`}
+                      ? 'Bulanan'
+                      : 'Tahunan'
+                  }`}
                 value={periodSales}
                 icon={Crosshair}
                 variant="default"
@@ -367,7 +389,7 @@ export default function DashboardPage() {
       <DebtDetailSheet
         debt={selectedDebt}
         isOpen={!!selectedDebt}
-        onClose={() => setSelectedDebt(null)}
+        onClose={() => setSelectedDebtId(null)}
       />
 
       {/* Processing Modal */}

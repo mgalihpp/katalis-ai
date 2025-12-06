@@ -27,10 +27,10 @@ interface StockEditFormProps {
 
 export function StockEditForm({ editData, setEditData, onSave, onCancel }: StockEditFormProps) {
     // Calculate total stock in small units (read-only display)
-    const totalSmallUnits = editData.units_per_pack > 0 
-        ? editData.quantity * editData.units_per_pack 
+    const totalSmallUnits = editData.units_per_pack > 0
+        ? editData.quantity * editData.units_per_pack
         : null;
-    
+
     return (
         <>
             <div className="space-y-4">
@@ -42,7 +42,7 @@ export function StockEditForm({ editData, setEditData, onSave, onCancel }: Stock
                         className="mt-1 bg-muted/50"
                     />
                 </div>
-                
+
                 {/* Read-only stock quantity display */}
                 <div className="p-4 bg-muted/30 rounded-xl border border-muted">
                     <p className="text-xs text-muted-foreground mb-2">Stok Saat Ini (tidak bisa diubah di sini)</p>
@@ -54,11 +54,11 @@ export function StockEditForm({ editData, setEditData, onSave, onCancel }: Stock
                             )}
                         </div>
                         <p className="text-xs text-muted-foreground max-w-[140px] text-right">
-                            Gunakan "Sesuaikan Stok" untuk mengubah jumlah
+                            Gunakan &quot;Sesuaikan Stok&quot; untuk mengubah jumlah
                         </p>
                     </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-3">
                     <div>
                         <Label className="text-xs text-muted-foreground">Satuan Pack</Label>

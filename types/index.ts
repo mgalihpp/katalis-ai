@@ -135,6 +135,7 @@ export interface OCRReceiptInfo {
 export interface OCRItem {
   name: string;
   quantity?: number | string;
+  unit?: string; // Added for stock integration
   unit_price?: number | string;
   total_price?: number | string;
   code?: string;

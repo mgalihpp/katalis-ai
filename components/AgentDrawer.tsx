@@ -209,6 +209,32 @@ export function AgentDrawer({ isOpen, onClose }: AgentDrawerProps) {
             {isLoading && callingTools.length === 0 && <TypingIndicator />}
           </div>
 
+          {/* Shortcut Templates */}
+          {messages.length === 0 && (
+            <div className="shrink-0 px-4 py-2 bg-background border-t border-border/50 overflow-x-auto">
+              <div className="flex gap-2 whitespace-nowrap">
+                {[
+                  { label: '❓ Kamu bisa apa?', query: 'Kamu bisa melakukan apa saja?' },
+                  { label: '📊 Omset hari ini', query: 'Berapa omset hari ini?' },
+                  { label: '📦 Stok menipis', query: 'Barang apa yang stoknya menipis?' },
+                  { label: '🔥 Produk terlaris', query: 'Barang apa yang paling laris hari ini?' },
+                  { label: '💰 Siapa yang hutang?', query: 'Siapa saja yang punya hutang?' },
+                ].map((shortcut, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      setInput(shortcut.query);
+                      inputRef.current?.focus();
+                    }}
+                    className="px-3 py-1.5 text-xs bg-muted hover:bg-muted/80 rounded-full text-foreground font-medium transition-colors"
+                  >
+                    {shortcut.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Input Area */}
           <div className="shrink-0 p-4 bg-background border-t border-border">
             <div className="flex items-center gap-2 bg-muted/50 p-2 rounded-2xl border border-transparent focus-within:border-primary/50 transition-colors">

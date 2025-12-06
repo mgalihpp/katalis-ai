@@ -87,8 +87,11 @@ export function ProcessingModal({
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onCancel()}>
-      <DrawerContent className="max-h-[85dvh]">
-        <div className="mx-auto w-full max-w-lg">
+      <DrawerContent className="max-h-[90dvh]">
+        <div
+          className="mx-auto w-full max-w-lg flex flex-col overflow-hidden"
+          style={{ maxHeight: '90dvh' }}
+        >
           {/* Processing State */}
           {isProcessing && (
             <div className="flex flex-col items-center py-12 px-6">
@@ -143,7 +146,7 @@ export function ProcessingModal({
           {/* Success State */}
           {result && !isProcessing && !error && (
             <>
-              <DrawerHeader>
+              <DrawerHeader className="shrink-0">
                 <div className="flex text-left items-center gap-3">
                   {TypeIcon && (
                     <div
@@ -166,7 +169,7 @@ export function ProcessingModal({
                 </div>
               </DrawerHeader>
 
-              <div className="px-6 py-4 space-y-4">
+              <div className="flex-1 min-h-0 overflow-y-auto px-6 py-4 space-y-4">
                 {/* Transcript */}
                 <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-xl">
                   <Mic className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
@@ -304,8 +307,8 @@ export function ProcessingModal({
                             (sum, t) => sum + (t.total_amount || 0),
                             0
                           ) ||
-                            result.debt?.amount ||
-                            0
+                          result.debt?.amount ||
+                          0
                         )}
                       </span>
                     </div>
@@ -320,8 +323,8 @@ export function ProcessingModal({
                       result.confidence >= 0.8
                         ? 'text-success'
                         : result.confidence >= 0.6
-                        ? 'text-warning'
-                        : 'text-destructive'
+                          ? 'text-warning'
+                          : 'text-destructive'
                     )}
                   >
                     {Math.round(result.confidence * 100)}%
@@ -329,7 +332,7 @@ export function ProcessingModal({
                 </div>
               </div>
 
-              <DrawerFooter className="py-4 pb-8 border-t border-border">
+              <DrawerFooter className="shrink-0 py-4 pb-8 border-t border-border">
                 <div className="flex gap-3">
                   <button
                     onClick={onCancel}

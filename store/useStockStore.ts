@@ -92,17 +92,17 @@ export const useStockStore = create<StockStore>()(
             // Update existing stock
             const existing = updatedStocks[existingIndex];
             stockId = existing.id;
-            
+
             // Get new units_per_pack if provided
             const newUnitsPerPack = result.stock?.units_per_pack ?? existing.units_per_pack;
             const newModalPerPack = result.stock?.modal_per_pack ?? existing.modal_per_pack;
-            
+
             // Auto-calculate modal_per_unit if we have both values
             let calculatedModalPerUnit = result.stock?.modal_per_unit ?? existing.modal_per_unit;
             if (newUnitsPerPack && newUnitsPerPack > 0 && newModalPerPack && newModalPerPack > 0) {
               calculatedModalPerUnit = Math.round(newModalPerPack / newUnitsPerPack);
             }
-            
+
             updatedStocks[existingIndex] = {
               ...existing,
               quantity: existing.quantity + quantity,
@@ -116,20 +116,20 @@ export const useStockStore = create<StockStore>()(
           } else {
             // Create new stock
             stockId = generateId();
-            
+
             // Get units_per_pack from voice result
             const unitsPerPack = result.stock?.units_per_pack ?? null;
             const modalPerPack = result.stock?.modal_per_pack ?? null;
-            
+
             // Auto-calculate modal_per_unit if we have both values
             let modalPerUnit = result.stock?.modal_per_unit ?? null;
             if (unitsPerPack && unitsPerPack > 0 && modalPerPack && modalPerPack > 0) {
               modalPerUnit = Math.round(modalPerPack / unitsPerPack);
             }
-            
+
             // Calculate small unit quantity if units_per_pack is available
             const smallUnitQuantity = unitsPerPack ? quantity * unitsPerPack : null;
-            
+
             const newStock: StockItem = {
               id: stockId,
               name: itemName,
@@ -192,35 +192,35 @@ export const useStockStore = create<StockStore>()(
 
             // Determine which price field to update based on unit type
             const isPack = isPackUnit(normalizedUnit);
-            
+
             // Calculate modal_per_unit if we have pack price and units_per_pack
             const effectiveUnitsPerPack = unitsPerPack || existing.units_per_pack;
             const calculatedModalPerUnit = (type === 'purchase' && isPack && price && effectiveUnitsPerPack)
               ? Math.round(price / effectiveUnitsPerPack)
               : existing.modal_per_unit;
-            
+
             // Update small_unit_quantity for sales - decrease by qty (in small units)
             // For pack sales, multiply by units_per_pack; for unit sales, use qty directly
             let newSmallUnitQty = existing.small_unit_quantity;
             if (existing.small_unit_quantity !== null) {
               if (type === 'sale') {
-                const unitsToSubtract = isPack && effectiveUnitsPerPack 
-                  ? quantity * effectiveUnitsPerPack 
+                const unitsToSubtract = isPack && effectiveUnitsPerPack
+                  ? quantity * effectiveUnitsPerPack
                   : quantity;
                 newSmallUnitQty = Math.max(0, existing.small_unit_quantity - unitsToSubtract);
               } else if (type === 'purchase') {
-                const unitsToAdd = isPack && effectiveUnitsPerPack 
-                  ? quantity * effectiveUnitsPerPack 
+                const unitsToAdd = isPack && effectiveUnitsPerPack
+                  ? quantity * effectiveUnitsPerPack
                   : quantity;
                 newSmallUnitQty = existing.small_unit_quantity + unitsToAdd;
               }
             }
-            
+
             // Calculate new pack quantity from small_unit_quantity
             const newPackQty = (newSmallUnitQty !== null && effectiveUnitsPerPack)
               ? Math.floor(newSmallUnitQty / effectiveUnitsPerPack)
               : newQuantity;
-            
+
             updatedStocks[existingIndex] = {
               ...existing,
               quantity: newPackQty,
@@ -240,16 +240,16 @@ export const useStockStore = create<StockStore>()(
             if (type === 'purchase') {
               stockId = generateId();
               const isPack = isPackUnit(normalizedUnit);
-              
+
               // Calculate modal_per_unit from pack price and units_per_pack
               const calculatedModalPerUnit = (isPack && price && unitsPerPack)
                 ? Math.round(price / unitsPerPack)
                 : null;
-              
+
               // Determine pack_unit and unit_unit based on transaction unit
               const packUnit = isPack ? normalizedUnit : 'pcs';
               const unitUnit = 'pcs';
-              
+
               const newStock: StockItem = {
                 id: stockId,
                 name: itemName,
@@ -339,20 +339,22 @@ export const useStockStore = create<StockStore>()(
         // Get the stock item name before deleting
         const stock = get().stocks.find(s => s.id === id);
         const normalizedName = stock ? normalizeItemName(stock.name) : null;
-        
+
         // Delete stock and movements
         set((state) => ({
           stocks: state.stocks.filter(s => s.id !== id),
           movements: state.movements.filter(m => m.stock_id !== id),
         }));
-        
+
         // Cascade delete related transactions from TransactionStore
+        // Using dynamic import to avoid circular dependency
         if (normalizedName) {
-          const transactionStore = require('./useTransactionStore').useTransactionStore;
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          const { useTransactionStore: transactionStore } = require('./useTransactionStore');
           transactionStore.setState((state: { transactions: Transaction[] }) => ({
             transactions: state.transactions.filter((t: Transaction) => {
               // Check if any item in the transaction matches the deleted stock
-              const hasMatchingItem = t.items.some((item: TransactionItem) => 
+              const hasMatchingItem = t.items.some((item: TransactionItem) =>
                 normalizeItemName(item.item_name) === normalizedName
               );
               return !hasMatchingItem;

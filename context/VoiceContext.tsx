@@ -96,32 +96,32 @@ function normalizeUnitForSale(unit: string | null): string {
 
 // Enrich transactions with prices from stock (for sales)
 function enrichTransactionsWithPrices(
-  parsed: ParsedVoiceResult, 
+  parsed: ParsedVoiceResult,
   getStockByName: (name: string) => ReturnType<typeof useStockStore.getState>['stocks'][number] | undefined
 ): ParsedVoiceResult {
   if (parsed.type !== 'sale' || !parsed.transactions) return parsed;
-  
+
   const packUnits = ['dus', 'pak', 'box', 'karton', 'lusin', 'krat', 'peti'];
-  
+
   const enrichedTransactions = parsed.transactions.map(item => {
     if (!item.item_name) return item;
-    
+
     const stock = getStockByName(item.item_name);
     const normalizedUnit = normalizeUnitForSale(item.unit);
     const isPack = packUnits.includes(normalizedUnit);
-    
+
     let pricePerUnit = item.price_per_unit;
-    
+
     // Only look up price if not provided
     if (pricePerUnit === null && stock) {
-      pricePerUnit = isPack 
+      pricePerUnit = isPack
         ? (stock.sell_per_pack ?? stock.sell_per_unit ?? null)
         : (stock.sell_per_unit ?? null);
     }
-    
+
     const qty = item.quantity || 1;
     const total = pricePerUnit ? qty * pricePerUnit : 0;
-    
+
     return {
       ...item,
       unit: normalizedUnit,
@@ -130,9 +130,7 @@ function enrichTransactionsWithPrices(
       total_amount: total,
     };
   });
-  
-  const totalAmount = enrichedTransactions.reduce((sum, t) => sum + (t.total_amount || 0), 0);
-  
+
   return {
     ...parsed,
     transactions: enrichedTransactions,
@@ -165,10 +163,10 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
 
     try {
       const result = await processVoice(audioBlob);
-      
+
       // Enrich transactions with prices from stock (for sales)
       const enrichedParsed = enrichTransactionsWithPrices(result.parsed, getStockByName);
-      
+
       setCurrentResult({
         transcript: result.transcript,
         parsed: enrichedParsed,

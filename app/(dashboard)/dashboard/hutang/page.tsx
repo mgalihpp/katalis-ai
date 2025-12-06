@@ -11,7 +11,6 @@ import { useTransactionStore } from '@/store/useTransactionStore';
 import { useVoice } from '@/context/VoiceContext';
 import { formatRupiah } from '@/lib/utils';
 import { cn } from '@/lib/utils';
-import type { Debt } from '@/types';
 
 type FilterType = 'all' | 'pending' | 'partial' | 'paid';
 
@@ -25,7 +24,7 @@ const filterOptions: { value: FilterType; label: string; icon: typeof HandCoins 
 export default function HutangPage() {
     const { debts } = useTransactionStore();
     const [filter, setFilter] = useState<FilterType>('all');
-    const [selectedDebt, setSelectedDebt] = useState<Debt | null>(null);
+    const [selectedDebtId, setSelectedDebtId] = useState<string | null>(null);
     const {
         isProcessing,
         showModal,
@@ -36,6 +35,9 @@ export default function HutangPage() {
         handleRetry
     } = useVoice();
 
+    // Derive selectedDebt from store to ensure reactivity
+    const selectedDebt = selectedDebtId ? debts.find(d => d.id === selectedDebtId) || null : null;
+
     const filteredDebts = debts.filter((d) => {
         if (filter === 'all') return true;
         return d.status === filter;
@@ -45,6 +47,7 @@ export default function HutangPage() {
     const totalDebt = debts.reduce((sum, d) => sum + d.total_amount, 0);
     const totalPaid = debts.reduce((sum, d) => sum + d.paid_amount, 0);
     const totalRemaining = debts.reduce((sum, d) => sum + d.remaining_amount, 0);
+
 
     return (
         <div className="min-h-screen bg-primary">
@@ -110,7 +113,7 @@ export default function HutangPage() {
                             <DebtCard
                                 key={debt.id}
                                 debt={debt}
-                                onClick={() => setSelectedDebt(debt)}
+                                onClick={() => setSelectedDebtId(debt.id)}
                             />
                         ))}
                     </div>
@@ -121,7 +124,7 @@ export default function HutangPage() {
             <DebtDetailSheet
                 debt={selectedDebt}
                 isOpen={!!selectedDebt}
-                onClose={() => setSelectedDebt(null)}
+                onClose={() => setSelectedDebtId(null)}
             />
 
             {/* Processing Modal */}

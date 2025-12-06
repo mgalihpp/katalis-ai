@@ -14,10 +14,6 @@ interface StockQuantityCardProps {
 }
 
 export function StockQuantityCard({ stock, statusBg, statusText, isLowStock, isOutOfStock }: StockQuantityCardProps) {
-    // Calculate small unit quantity if not stored
-    const smallUnitQty = stock.small_unit_quantity ?? 
-        (stock.units_per_pack ? stock.quantity * stock.units_per_pack : null);
-    
     return (
         <div className={cn('p-5 rounded-2xl text-center', statusBg)}>
             <p className="text-sm text-muted-foreground mb-1">Jumlah Stok</p>
@@ -42,12 +38,12 @@ export function StockQuantityCard({ stock, statusBg, statusText, isLowStock, isO
 // Component to display total stock in small units (e.g., "41 pcs")
 export function SmallUnitQuantityDisplay({ stock }: { stock: StockItem }) {
     // Calculate small unit quantity if not stored directly
-    const smallUnitQty = stock.small_unit_quantity ?? 
+    const smallUnitQty = stock.small_unit_quantity ??
         (stock.units_per_pack ? stock.quantity * stock.units_per_pack : null);
-    
+
     // Don't show if no small unit quantity available
     if (smallUnitQty === null || !stock.units_per_pack) return null;
-    
+
     return (
         <div className="text-center py-3 bg-muted/50 rounded-xl border-2 border-muted">
             <p className="text-xl font-bold text-foreground">{smallUnitQty} {stock.unit_unit || 'pcs'}</p>
@@ -69,35 +65,40 @@ export function AdjustStockButton({ onClick }: { onClick: () => void }) {
 }
 
 export function PriceCards({ stock }: { stock: StockItem }) {
+    // Check if item uses pack units (has units_per_pack set)
+    const hasPackUnit = stock.units_per_pack && stock.units_per_pack > 0;
+
     return (
         <div className="space-y-3">
-            {/* Per Dus/Pak Section */}
-            <div className="grid grid-cols-2 gap-3">
-                <div className="p-4 bg-muted/50 rounded-xl">
-                    <div className="flex items-center gap-2 mb-2">
-                        <TrendingDown className="w-4 h-4 text-purchase" />
-                        <span className="text-xs text-muted-foreground">Modal per dus/pak</span>
+            {/* Per Dus/Pak Section - Only show if item uses pack units */}
+            {hasPackUnit && (
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="p-4 bg-muted/50 rounded-xl">
+                        <div className="flex items-center gap-2 mb-2">
+                            <TrendingDown className="w-4 h-4 text-purchase" />
+                            <span className="text-xs text-muted-foreground">Modal per {stock.pack_unit || 'dus'}</span>
+                        </div>
+                        <p className="text-lg font-bold text-foreground">
+                            {stock.modal_per_pack ? formatRupiah(stock.modal_per_pack) : '-'}
+                        </p>
                     </div>
-                    <p className="text-lg font-bold text-foreground">
-                        {stock.modal_per_pack ? formatRupiah(stock.modal_per_pack) : '-'}
-                    </p>
-                </div>
-                <div className="p-4 bg-muted/50 rounded-xl">
-                    <div className="flex items-center gap-2 mb-2">
-                        <TrendingUp className="w-4 h-4 text-success" />
-                        <span className="text-xs text-muted-foreground">Jual per dus/pak</span>
+                    <div className="p-4 bg-muted/50 rounded-xl">
+                        <div className="flex items-center gap-2 mb-2">
+                            <TrendingUp className="w-4 h-4 text-success" />
+                            <span className="text-xs text-muted-foreground">Jual per {stock.pack_unit || 'dus'}</span>
+                        </div>
+                        <p className="text-lg font-bold text-foreground">
+                            {stock.sell_per_pack ? formatRupiah(stock.sell_per_pack) : '-'}
+                        </p>
                     </div>
-                    <p className="text-lg font-bold text-foreground">
-                        {stock.sell_per_pack ? formatRupiah(stock.sell_per_pack) : '-'}
-                    </p>
                 </div>
-            </div>
+            )}
             {/* Per Satuan Section */}
             <div className="grid grid-cols-2 gap-3">
                 <div className="p-4 bg-muted/50 rounded-xl">
                     <div className="flex items-center gap-2 mb-2">
                         <TrendingDown className="w-4 h-4 text-purchase" />
-                        <span className="text-xs text-muted-foreground">Modal per satuan</span>
+                        <span className="text-xs text-muted-foreground">Modal per {stock.unit_unit || 'pcs'}</span>
                     </div>
                     <p className="text-lg font-bold text-foreground">
                         {stock.modal_per_unit ? formatRupiah(stock.modal_per_unit) : '-'}
@@ -106,7 +107,7 @@ export function PriceCards({ stock }: { stock: StockItem }) {
                 <div className="p-4 bg-muted/50 rounded-xl">
                     <div className="flex items-center gap-2 mb-2">
                         <TrendingUp className="w-4 h-4 text-success" />
-                        <span className="text-xs text-muted-foreground">Jual per satuan</span>
+                        <span className="text-xs text-muted-foreground">Jual per {stock.unit_unit || 'pcs'}</span>
                     </div>
                     <p className="text-lg font-bold text-foreground">
                         {stock.sell_per_unit ? formatRupiah(stock.sell_per_unit) : '-'}
@@ -119,7 +120,7 @@ export function PriceCards({ stock }: { stock: StockItem }) {
 
 export function UnitsPerPackInfo({ stock }: { stock: StockItem }) {
     if (!stock.units_per_pack) return null;
-    
+
     return (
         <div className="flex items-center gap-2 p-3 bg-muted/30 rounded-xl">
             <Package className="w-4 h-4 text-muted-foreground" />

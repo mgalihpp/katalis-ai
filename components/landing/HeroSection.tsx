@@ -3,29 +3,6 @@
 import Link from 'next/link';
 import { Sparkles, ArrowRight, Mic, BarChart3, Package, HandCoins, Camera, Bot } from 'lucide-react';
 
-// Voice Wave Animation Component
-function VoiceWave() {
-    // Heights for each bar - centered pattern (smaller at edges, bigger in middle)
-    const barHeights = [8, 14, 20, 24, 20, 14, 8];
-    // Delays - start from center and ripple outward
-    const delays = [0.3, 0.2, 0.1, 0, 0.1, 0.2, 0.3];
-
-    return (
-        <div className="flex items-center justify-center gap-1">
-            {barHeights.map((height, i) => (
-                <div
-                    key={i}
-                    className="w-1 sm:w-1.5 rounded-full bg-primary"
-                    style={{
-                        height: `${height}px`,
-                        animation: 'wave 1s ease-in-out infinite',
-                        animationDelay: `${delays[i]}s`,
-                    }}
-                />
-            ))}
-        </div>
-    );
-}
 
 // Floating Icon Component
 function FloatingIcon({ icon: Icon, className, delay = '0s' }: { icon: React.ElementType; className: string; delay?: string }) {
@@ -50,12 +27,12 @@ const voiceExamples = [
 
 export function HeroSection() {
     return (
-        <section className="relative min-h-[100dvh] flex items-center justify-center overflow-hidden pt-20 pb-8 sm:pb-0">
-            {/* Background Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/5" />
+        <section className="relative flex items-center justify-center pt-24 pb-16 sm:pt-28 sm:pb-20">
+            {/* Background Gradient - Fixed to viewport */}
+            <div className="fixed inset-0 bg-gradient-to-br from-primary/10 via-background to-accent/5 -z-10" />
 
-            {/* Animated Background Circles */}
-            <div className="absolute inset-0 overflow-hidden hidden sm:block">
+            {/* Animated Background Circles - Fixed to viewport */}
+            <div className="fixed inset-0 overflow-hidden hidden sm:block -z-10 pointer-events-none">
                 <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-primary/10 blur-3xl animate-pulse" />
                 <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full bg-accent/10 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
                 <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-3xl" />
@@ -84,7 +61,7 @@ export function HeroSection() {
                 </h1>
 
                 {/* Subheading */}
-                <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed px-2">
+                <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 leading-relaxed px-2">
                     Cukup bicara, AI kami akan mencatat transaksi, stok, dan hutang secara otomatis.
                 </p>
 
@@ -99,11 +76,6 @@ export function HeroSection() {
                         <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-primary to-emerald-600 flex items-center justify-center shadow-2xl shadow-primary/40 cursor-pointer hover:scale-105 transition-transform">
                             <Mic className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
                         </div>
-                    </div>
-
-                    {/* Wave Animation Below */}
-                    <div className="mt-6">
-                        <VoiceWave />
                     </div>
                 </div>
 

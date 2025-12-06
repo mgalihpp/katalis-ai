@@ -86,6 +86,34 @@ export function executeAgentTool(
             return JSON.stringify({ top_selling: topSelling });
         }
 
+        if (functionName === 'get_all_debts') {
+            const statusFilter = args.status || 'all';
+            let debts = transactionStore.debts.filter((d) => d.status !== 'paid');
+
+            if (statusFilter === 'pending') {
+                debts = debts.filter((d) => d.status === 'pending');
+            } else if (statusFilter === 'partial') {
+                debts = debts.filter((d) => d.status === 'partial');
+            }
+
+            if (debts.length === 0) {
+                return JSON.stringify({ message: 'Tidak ada yang punya hutang belum lunas' });
+            }
+
+            const totalDebt = debts.reduce((sum, d) => sum + d.remaining_amount, 0);
+            const debtorList = debts.map((d) => ({
+                name: d.debtor_name,
+                total: d.remaining_amount,
+                status: d.status,
+            }));
+
+            return JSON.stringify({
+                total_debt: totalDebt,
+                count: debts.length,
+                debtors: debtorList,
+            });
+        }
+
         return JSON.stringify({ error: 'Function not found' });
     } catch (error) {
         console.error('Tool execution error:', error);
@@ -103,6 +131,7 @@ export function getToolLabel(toolName: string): string {
         get_today_summary: '📊 Mengambil laporan',
         get_low_stock: '📉 Cek stok menipis',
         get_top_selling: '🏆 Cek barang terlaris',
+        get_all_debts: '📋 Daftar penghutang',
     };
     return labels[toolName] || '🔧 Memanggil fungsi';
 }

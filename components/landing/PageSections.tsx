@@ -41,7 +41,7 @@ export function PageCTA() {
                     href="/dashboard"
                     className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-primary font-semibold hover:bg-white/90 transition-colors shadow-lg"
                 >
-                    Mulai Sekarang — Gratis
+                    Mulai Sekarang Gratis
                     <ArrowRight className="w-5 h-5" />
                 </Link>
             </div>

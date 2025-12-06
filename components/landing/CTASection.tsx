@@ -16,13 +16,13 @@ export function CTASection() {
                             Siap Memulai?
                         </h2>
                         <p className="text-white/80 text-sm sm:text-lg max-w-xl mx-auto mb-6 sm:mb-8">
-                            Ribuan UMKM sudah merasakan kemudahan mencatat transaksi dengan suara. Sekarang giliran Anda!
+                            Beberapa UMKM sudah merasakan kemudahan mencatat transaksi dengan suara. Sekarang giliran Anda!
                         </p>
                         <Link
                             href="/dashboard"
                             className="inline-flex items-center gap-2 px-6 sm:px-8 py-3 sm:py-4 rounded-full bg-white text-primary font-semibold hover:bg-white/90 transition-colors shadow-lg text-sm sm:text-base"
                         >
-                            Mulai Sekarang — Gratis
+                            Mulai Sekarang Gratis
                             <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                         </Link>
                     </div>
