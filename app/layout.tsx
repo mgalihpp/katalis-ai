@@ -15,8 +15,32 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Katalis AI - Kasir Suara',
-  description: 'Aplikasi kasir berbasis suara untuk UMKM Indonesia',
+  title: 'Katalis AI - Asisten Kasir Berbasis Suara',
+  description: 'Voice-First AI Assistant untuk UMKM Indonesia. Catat transaksi, kelola stok, dan pantau hutang hanya dengan suara Anda. Tap sekali, ngomong, selesai!',
+  keywords: ['kasir suara', 'UMKM Indonesia', 'voice assistant', 'AI kasir', 'manajemen stok', 'pencatatan hutang', 'OCR nota'],
+  authors: [{ name: 'Katalis AI Team' }],
+  openGraph: {
+    type: 'website',
+    locale: 'id_ID',
+    url: 'https://katalis-ai-xi.vercel.app',
+    siteName: 'Katalis AI',
+    title: 'Katalis AI - Asisten Kasir Berbasis Suara',
+    description: 'Voice-First AI Assistant untuk UMKM Indonesia. Catat transaksi, kelola stok, dan pantau hutang hanya dengan suara Anda.',
+    images: [
+      {
+        url: '/og-cover.png',
+        width: 1200,
+        height: 630,
+        alt: 'Katalis AI - Voice-First AI Assistant untuk UMKM Indonesia',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Katalis AI - Asisten Kasir Berbasis Suara',
+    description: 'Voice-First AI Assistant untuk UMKM Indonesia. Tap sekali, ngomong, selesai!',
+    images: ['/og-cover.png'],
+  },
 };
 
 export default function RootLayout({
