@@ -1,6 +1,6 @@
 // Kasir Suara - Type Definitions
 
-export type TransactionType = 'sale' | 'purchase' | 'debt_add' | 'debt_payment' | 'stock_add' | 'stock_check';
+export type TransactionType = 'sale' | 'purchase' | 'debt_add' | 'debt_payment' | 'stock_add' | 'stock_check' | 'price_update';
 
 // Stock Item
 export interface StockItem {
@@ -94,6 +94,7 @@ export interface ParsedVoiceResult {
   debt: {
     debtor_name: string | null;
     amount: number | null;
+    original_amount: number | null; // For compound scenarios: "hutang 50rb, bayar 25rb" -> original=50000, amount=25000
   } | null;
   stock: {
     item_name: string | null;

@@ -11,6 +11,7 @@ interface StockStore {
   updateStock: (id: string, updates: Partial<StockItem>) => void;
   deleteStock: (id: string) => void;
   updateStockFromTransaction: (itemName: string, quantity: number, type: 'sale' | 'purchase', unit?: string, price?: number, unitsPerPack?: number) => void;
+  updateStockPrice: (result: ParsedVoiceResult) => boolean; // Returns true if stock found and updated
   getStockByName: (name: string) => StockItem | undefined;
   getAllStocks: () => StockItem[];
   getLowStocks: () => StockItem[];
@@ -63,6 +64,25 @@ function isPackUnit(unit: string): boolean {
   const packUnits = ['dus', 'pak', 'box', 'karton', 'lusin', 'krat', 'peti', 'rim', 'ball', 'sak'];
   const normalized = normalizeUnit(unit);
   return packUnits.includes(normalized);
+}
+
+// Helper: Check if unit is bulk weight/volume type (kg, ltr, gr, etc.)
+// These units should NOT be converted to pcs - they are the primary unit
+function isBulkUnit(unit: string): boolean {
+  const bulkUnits = ['kg', 'gr', 'ltr', 'ml', 'kilo', 'kilogram', 'gram', 'liter', 'ons', 'kuintal'];
+  const normalized = normalizeUnit(unit);
+  return bulkUnits.includes(normalized);
+}
+
+// Helper: Determine the appropriate small unit based on product type
+function determineUnitUnit(unit: string): string {
+  const normalizedUnit = normalizeUnit(unit);
+  // If it's a bulk unit (kg, ltr, etc.), use that as the unit_unit
+  if (isBulkUnit(normalizedUnit)) {
+    return normalizedUnit;
+  }
+  // Otherwise default to pcs for packaged products
+  return 'pcs';
 }
 
 export const useStockStore = create<StockStore>()(
@@ -137,8 +157,8 @@ export const useStockStore = create<StockStore>()(
               quantity,
               small_unit_quantity: smallUnitQuantity,
               unit,
-              pack_unit: isPackUnit(unit) ? unit : 'pcs',
-              unit_unit: 'pcs',
+              pack_unit: isPackUnit(unit) ? unit : (isBulkUnit(unit) ? unit : 'pcs'),
+              unit_unit: determineUnitUnit(unit),
               units_per_pack: unitsPerPack,
               modal_per_pack: modalPerPack,
               modal_per_unit: modalPerUnit,
@@ -151,13 +171,14 @@ export const useStockStore = create<StockStore>()(
             updatedStocks.push(newStock);
           }
 
-          // Record movement
+          // Record movement - determine type based on quantity sign
+          const isAdding = quantity >= 0;
           const movement: StockMovement = {
             id: generateId(),
             stock_id: stockId,
-            type: 'in',
-            quantity,
-            reason: 'Tambah stok manual',
+            type: isAdding ? 'in' : 'out',
+            quantity: Math.abs(quantity), // Store absolute value
+            reason: isAdding ? 'Tambah stok manual' : 'Kurangi stok manual',
             reference_id: null,
             created_at: now,
           };
@@ -247,8 +268,8 @@ export const useStockStore = create<StockStore>()(
                 : null;
 
               // Determine pack_unit and unit_unit based on transaction unit
-              const packUnit = isPack ? normalizedUnit : 'pcs';
-              const unitUnit = 'pcs';
+              const packUnit = isPack ? normalizedUnit : (isBulkUnit(normalizedUnit) ? normalizedUnit : 'pcs');
+              const unitUnit = determineUnitUnit(normalizedUnit);
 
               const newStock: StockItem = {
                 id: stockId,
@@ -280,8 +301,8 @@ export const useStockStore = create<StockStore>()(
                 quantity: 0,
                 small_unit_quantity: null,
                 unit,
-                pack_unit: isPack ? unit : 'pcs',
-                unit_unit: 'pcs',
+                pack_unit: isPack ? unit : (isBulkUnit(unit) ? unit : 'pcs'),
+                unit_unit: determineUnitUnit(unit),
                 units_per_pack: null,
                 modal_per_pack: null,
                 modal_per_unit: null,
@@ -316,6 +337,48 @@ export const useStockStore = create<StockStore>()(
       getStockByName: (name: string) => {
         const normalizedName = normalizeItemName(name);
         return get().stocks.find(s => s.normalized_name === normalizedName);
+      },
+
+      updateStockPrice: (result: ParsedVoiceResult) => {
+        if (result.type !== 'price_update' || !result.stock?.item_name) return false;
+
+        const itemName = result.stock.item_name;
+        const normalizedName = normalizeItemName(itemName);
+        const now = new Date().toISOString();
+
+        const existingStock = get().stocks.find(s => s.normalized_name === normalizedName);
+        if (!existingStock) return false;
+
+        // Build price updates from the parsed result
+        const priceUpdates: Partial<StockItem> = {};
+
+        if (result.stock.sell_per_unit !== null && result.stock.sell_per_unit !== undefined) {
+          priceUpdates.sell_per_unit = result.stock.sell_per_unit;
+        }
+        if (result.stock.sell_per_pack !== null && result.stock.sell_per_pack !== undefined) {
+          priceUpdates.sell_per_pack = result.stock.sell_per_pack;
+        }
+        if (result.stock.modal_per_unit !== null && result.stock.modal_per_unit !== undefined) {
+          priceUpdates.modal_per_unit = result.stock.modal_per_unit;
+        }
+        if (result.stock.modal_per_pack !== null && result.stock.modal_per_pack !== undefined) {
+          priceUpdates.modal_per_pack = result.stock.modal_per_pack;
+          // Auto-calculate modal_per_unit if units_per_pack exists
+          if (existingStock.units_per_pack && existingStock.units_per_pack > 0) {
+            priceUpdates.modal_per_unit = Math.round(result.stock.modal_per_pack / existingStock.units_per_pack);
+          }
+        }
+
+        // Apply updates
+        set((state) => ({
+          stocks: state.stocks.map(s =>
+            s.id === existingStock.id
+              ? { ...s, ...priceUpdates, updated_at: now }
+              : s
+          ),
+        }));
+
+        return true;
       },
 
       getAllStocks: () => {

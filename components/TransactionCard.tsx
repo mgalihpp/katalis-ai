@@ -1,4 +1,4 @@
-import { TrendingUp, ShoppingCart, UserPlus, CheckCircle } from 'lucide-react';
+import { TrendingUp, ShoppingCart, UserPlus, CheckCircle, Tag } from 'lucide-react';
 import { cn, formatRupiah, formatRelativeTime, formatTransactionType } from '@/lib/utils';
 import type { Transaction } from '@/types';
 
@@ -42,6 +42,12 @@ const typeConfig = {
     icon: ShoppingCart, // Fallback icon
     badgeClass: 'badge-stock',
     amountClass: 'text-muted-foreground',
+    prefix: '',
+  },
+  price_update: {
+    icon: Tag,
+    badgeClass: 'badge-info',
+    amountClass: 'text-info',
     prefix: '',
   },
 };

@@ -1,6 +1,6 @@
 'use client';
 
-import { Banknote, ShoppingCart, HandCoins, Wallet, Package, } from 'lucide-react';
+import { Banknote, ShoppingCart, HandCoins, Wallet, Package, Tag } from 'lucide-react';
 import { cn, formatRupiah, formatRelativeTime, formatTransactionType } from '@/lib/utils';
 import type { Transaction } from '@/types';
 import { createRippleEffect } from '@/hooks/useRipple';
@@ -50,6 +50,13 @@ const typeConfig = {
     iconBg: 'bg-gradient-to-br from-muted-foreground/20 to-muted-foreground/5',
     iconColor: 'text-muted-foreground',
     amountColor: 'text-foreground',
+    prefix: '',
+  },
+  price_update: {
+    icon: Tag,
+    iconBg: 'bg-gradient-to-br from-info/20 to-info/5',
+    iconColor: 'text-info',
+    amountColor: 'text-info',
     prefix: '',
   },
 };

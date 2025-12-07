@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
             const rawParsed = JSON.parse(responseContent);
 
             // Ensure the type is valid
-            const validTypes: TransactionType[] = ['sale', 'purchase', 'debt_add', 'debt_payment', 'stock_add', 'stock_check'];
+            const validTypes: TransactionType[] = ['sale', 'purchase', 'debt_add', 'debt_payment', 'stock_add', 'stock_check', 'price_update'];
             if (!validTypes.includes(rawParsed.type)) {
                 rawParsed.type = 'sale'; // Default to sale
             }

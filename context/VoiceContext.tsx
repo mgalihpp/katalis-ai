@@ -77,9 +77,25 @@ async function processVoice(audioBlob: Blob): Promise<{ transcript: string; pars
 }
 
 // Normalize units for sales (piece, pc → pcs)
+// IMPORTANT: Bulk units (kg, ltr, gr) should NOT be converted to pcs
 function normalizeUnitForSale(unit: string | null): string {
   if (!unit) return 'pcs';
   const normalized = unit.toLowerCase().trim();
+
+  // Preserve bulk units - these are primary units for curah products
+  const bulkUnits = ['kg', 'gr', 'ltr', 'ml', 'kilo', 'kilogram', 'gram', 'liter', 'ons'];
+  if (bulkUnits.includes(normalized)) {
+    // Normalize variations to standard form
+    const bulkNormalize: Record<string, string> = {
+      'kilo': 'kg',
+      'kilogram': 'kg',
+      'gram': 'gr',
+      'liter': 'ltr',
+    };
+    return bulkNormalize[normalized] || normalized;
+  }
+
+  // For packaged products, normalize to pcs or standard units
   const unitMap: Record<string, string> = {
     'piece': 'pcs',
     'pieces': 'pcs',
@@ -120,7 +136,13 @@ function enrichTransactionsWithPrices(
     }
 
     const qty = item.quantity || 1;
-    const total = pricePerUnit ? qty * pricePerUnit : 0;
+
+    // IMPORTANT: Preserve existing total_amount if set by AI (e.g., "totalnya 65 ribu")
+    // Only calculate if pricePerUnit exists AND item.total_amount is not already set
+    let total = item.total_amount;
+    if (pricePerUnit && !item.total_amount) {
+      total = qty * pricePerUnit;
+    }
 
     return {
       ...item,
@@ -140,7 +162,7 @@ function enrichTransactionsWithPrices(
 export function VoiceProvider({ children }: { children: ReactNode }) {
   const { state, startRecording, stopRecording, resetState, setProcessing, setError } = useVoiceRecorder();
   const { addTransaction } = useTransactionStore();
-  const { addStock, getStockByName } = useStockStore();
+  const { addStock, getStockByName, updateStockPrice } = useStockStore();
 
   const [showModal, setShowModal] = useState(false);
   const [currentResult, setCurrentResult] = useState<{ transcript: string; parsed: ParsedVoiceResult } | null>(null);
@@ -185,6 +207,13 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
       if (currentResult.parsed.type === 'stock_add' && currentResult.parsed.stock) {
         addStock(currentResult.parsed);
         toast.success('Stok berhasil ditambahkan!');
+      } else if (currentResult.parsed.type === 'price_update' && currentResult.parsed.stock) {
+        const updated = updateStockPrice(currentResult.parsed);
+        if (updated) {
+          toast.success('Harga berhasil diupdate!');
+        } else {
+          toast.error('Barang tidak ditemukan. Pastikan nama barang sudah ada di stok.');
+        }
       } else {
         addTransaction(currentResult.parsed);
         toast.success('Transaksi berhasil disimpan!');
@@ -193,7 +222,7 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
     setShowModal(false);
     setCurrentResult(null);
     resetState();
-  }, [currentResult, addTransaction, addStock, resetState]);
+  }, [currentResult, addTransaction, addStock, updateStockPrice, resetState]);
 
   const handleCancel = useCallback(() => {
     setShowModal(false);

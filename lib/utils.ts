@@ -91,6 +91,7 @@ export function formatTransactionType(type: string): string {
     debt_payment: 'Bayar Hutang',
     stock_add: 'Tambah Stok',
     stock_check: 'Cek Stok',
+    price_update: 'Update Harga',
   };
   return labels[type] || type;
 }
@@ -106,6 +107,7 @@ export function getTransactionIcon(type: string): string {
     debt_payment: 'check-circle',
     stock_add: 'package-plus',
     stock_check: 'package-search',
+    price_update: 'tag',
   };
   return icons[type] || 'circle';
 }

@@ -12,6 +12,7 @@ import {
   Clock,
   MessageSquare,
   Mic,
+  Tag,
 } from 'lucide-react';
 import {
   Drawer,
@@ -85,6 +86,13 @@ const typeConfig = {
     label: 'Cek Stok',
     color: 'text-muted-foreground',
     bg: 'bg-muted',
+    prefix: '',
+  },
+  price_update: {
+    icon: Tag,
+    label: 'Update Harga',
+    color: 'text-info',
+    bg: 'bg-info/10',
     prefix: '',
   },
 };

@@ -9,6 +9,7 @@ import {
   Wallet,
   Package,
   RotateCcw,
+  Tag,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ParsedVoiceResult } from '@/types';
@@ -69,6 +70,12 @@ const typeConfig = {
     label: 'Cek Stok',
     color: 'text-muted-foreground',
     bg: 'bg-muted',
+  },
+  price_update: {
+    icon: Tag,
+    label: 'Update Harga',
+    color: 'text-info',
+    bg: 'bg-info/10',
   },
 };
 
@@ -239,12 +246,32 @@ export function ProcessingModal({
                         {result.stock.item_name}
                       </p>
                     </div>
-                    <div className="flex items-center justify-between py-2">
-                      <p className="text-sm text-muted-foreground">Jumlah</p>
-                      <p className="text-sm font-medium text-foreground">
-                        {result.stock.quantity} {result.stock.unit}
-                      </p>
-                    </div>
+                    {/* Show quantity only for stock_add */}
+                    {result.type === 'stock_add' && result.stock.quantity !== null && (
+                      <div className="flex items-center justify-between py-2">
+                        <p className="text-sm text-muted-foreground">Jumlah</p>
+                        <p className="text-sm font-medium text-foreground">
+                          {result.stock.quantity} {result.stock.unit}
+                        </p>
+                      </div>
+                    )}
+                    {/* Price update specific displays */}
+                    {result.stock.sell_per_unit && (
+                      <div className="flex items-center justify-between py-2 bg-success/5 rounded-lg px-3 -mx-3">
+                        <p className="text-sm text-muted-foreground">Harga Jual / satuan</p>
+                        <p className="text-sm font-semibold text-success">
+                          {formatRupiah(result.stock.sell_per_unit)}
+                        </p>
+                      </div>
+                    )}
+                    {result.stock.modal_per_unit && (
+                      <div className="flex items-center justify-between py-2 bg-purchase/5 rounded-lg px-3 -mx-3">
+                        <p className="text-sm text-muted-foreground">Harga Modal / satuan</p>
+                        <p className="text-sm font-semibold text-purchase">
+                          {formatRupiah(result.stock.modal_per_unit)}
+                        </p>
+                      </div>
+                    )}
                     {result.stock.modal_per_pack && (
                       <div className="flex items-center justify-between py-2">
                         <p className="text-sm text-muted-foreground">
@@ -252,6 +279,16 @@ export function ProcessingModal({
                         </p>
                         <p className="text-sm font-medium text-foreground">
                           {formatRupiah(result.stock.modal_per_pack)}
+                        </p>
+                      </div>
+                    )}
+                    {result.stock.sell_per_pack && (
+                      <div className="flex items-center justify-between py-2">
+                        <p className="text-sm text-muted-foreground">
+                          Harga Jual per {result.stock.unit || 'dus/pak'}
+                        </p>
+                        <p className="text-sm font-medium text-foreground">
+                          {formatRupiah(result.stock.sell_per_pack)}
                         </p>
                       </div>
                     )}
@@ -266,7 +303,7 @@ export function ProcessingModal({
                       </div>
                     )}
                     {/* Modal per satuan - calculated from modal_per_pack / units_per_pack */}
-                    {result.stock.modal_per_pack && result.stock.units_per_pack && result.stock.units_per_pack > 0 && (
+                    {result.stock.modal_per_pack && result.stock.units_per_pack && result.stock.units_per_pack > 0 && !result.stock.modal_per_unit && (
                       <div className="flex items-center justify-between py-2 bg-primary/5 rounded-lg px-3 -mx-3">
                         <p className="text-sm text-muted-foreground">
                           Modal per satuan
@@ -276,22 +313,13 @@ export function ProcessingModal({
                         </p>
                       </div>
                     )}
-                    {result.stock.sell_per_pack && (
-                      <div className="flex items-center justify-between py-2">
-                        <p className="text-sm text-muted-foreground">
-                          Harga Jual per {result.stock.unit || 'dus/pak'}
-                        </p>
-                        <p className="text-sm font-medium text-foreground">
-                          {formatRupiah(result.stock.sell_per_pack)}
-                        </p>
-                      </div>
-                    )}
                   </div>
                 )}
 
                 {/* Total */}
                 {result.type !== 'stock_add' &&
-                  result.type !== 'stock_check' && (
+                  result.type !== 'stock_check' &&
+                  result.type !== 'price_update' && (
                     <div
                       className={cn(
                         'flex items-center justify-between p-4 rounded-xl',
