@@ -469,7 +469,11 @@ export const useStockStore = create<StockStore>()(
       },
 
       getLowStocks: () => {
-        return get().stocks.filter(s => s.quantity <= s.min_stock);
+        return get().stocks.filter(s => {
+          // Only low stock if quantity <= min_stock AND not completely out of stock
+          const isOutOfStock = s.quantity === 0 && (s.small_unit_quantity === null || s.small_unit_quantity === 0);
+          return s.quantity <= s.min_stock && !isOutOfStock;
+        });
       },
 
       updateStock: (id: string, updates: Partial<StockItem>) => {

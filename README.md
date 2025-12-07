@@ -1,4 +1,4 @@
-# 🎙️ Katalis AI - Asisten Kasir Berbasis Suara
+# 🎙️ Katalis AI - Pembukuan Usaha Berbasis Suara
 
 <p align="center">
   <img src="public/og-cover.png" alt="Katalis AI cover" width="500" height="auto" />
@@ -31,7 +31,7 @@ Bayangkan seorang **pedagang sayur di pasar tradisional**:
 **Masalah nyata pelaku UMKM Indonesia:**
 - ❌ **Repot mengetik** - harus ketik nama barang, jumlah, harga satu-satu
 - ❌ **Sibuk melayani pelanggan** - tidak sempat input manual
-- ❌ **Tidak terbiasa** dengan aplikasi kasir yang rumit
+- ❌ **Tidak terbiasa** dengan aplikasi pembukuan yang rumit
 - ❌ **Lupa mencatat** hutang pelanggan
 - ❌ **Bingung menghitung** stok dan modal di akhir hari
 

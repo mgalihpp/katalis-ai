@@ -236,12 +236,16 @@ export function StockAdjustDrawer({
 
                                 {/* Price Input */}
                                 <div>
-                                    <Label className="text-xs text-muted-foreground">Harga per {packUnit}</Label>
+                                    <Label className={cn('text-xs text-muted-foreground', purchaseError && 'text-red-500')}>Harga per {packUnit}</Label>
                                     <CurrencyInput
                                         value={purchasePrice}
-                                        onChange={(val) => setPurchasePrice(Math.max(0, val))}
-                                        className="mt-1 bg-muted/50"
+                                        onChange={(val) => {
+                                            setPurchasePrice(Math.max(0, val));
+                                            if (purchaseError) setPurchaseError('');
+                                        }}
+                                        className={cn('mt-1 bg-muted/50', purchaseError && 'border-red-500')}
                                     />
+                                    {purchaseError && <p className="text-xs text-red-500 mt-1">{purchaseError}</p>}
                                 </div>
 
                                 {/* Total */}
@@ -260,8 +264,6 @@ export function StockAdjustDrawer({
                                         className="mt-1 bg-muted/50"
                                     />
                                 </div>
-
-                                {purchaseError && <p className="text-xs text-red-500">{purchaseError}</p>}
                             </div>
                         )}
                     </div>

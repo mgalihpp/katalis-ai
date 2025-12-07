@@ -197,7 +197,7 @@ export function BottomNav() {
                 className={cn('nav-item flex-1 ripple', isActive && 'active')}
               >
                 <Icon className="w-4 h-4" />
-                <span className="text-[10px] font-medium">{item.label}</span>
+                <span className="text-xs font-medium max-[329px]:text-[10px]">{item.label}</span>
               </button>
             );
           })}

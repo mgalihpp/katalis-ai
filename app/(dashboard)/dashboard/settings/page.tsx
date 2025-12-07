@@ -438,7 +438,7 @@ export default function SettingsPage() {
             <Separator />
             <div className="pt-2">
               <p className="text-xs text-muted-foreground text-center">
-                Katalis AI - Aplikasi Kasir Berbasis Suara untuk UMKM Indonesia
+                Katalis AI - Aplikasi Pembukuan Usaha Berbasis Suara untuk UMKM Indonesia
               </p>
             </div>
             <Separator />

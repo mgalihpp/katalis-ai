@@ -40,11 +40,11 @@ export function Header({ variant = 'default', onScanClick, onAgentClick }: Heade
           </div>
           <div>
             <p className={cn(
-              'text-sm',
+              'text-sm max-[329px]:text-xs',
               isLight ? 'text-white/80' : 'text-muted-foreground'
             )}>{getGreeting()}</p>
             <h1 className={cn(
-              'text-lg font-bold',
+              'text-lg max-[329px]:text-sm font-bold max-[329px]:truncate line-clamp-2 max-[329px]:max-w-[100px]',
               isLight ? 'text-white' : 'text-foreground'
             )}>{storeName}</h1>
           </div>
