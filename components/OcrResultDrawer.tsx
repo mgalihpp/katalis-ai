@@ -49,6 +49,7 @@ export function OcrResultDrawer({
   const [merchantName, setMerchantName] = useState('');
   const [receiptDate, setReceiptDate] = useState('');
   const [addToStock, setAddToStock] = useState(true); // Default ON
+  const [isSaving, setIsSaving] = useState(false); // Prevent double submission
 
   // Initialize state when result changes
   useEffect(() => {
