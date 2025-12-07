@@ -27,6 +27,8 @@ import { TargetEditDrawer } from '@/components/TargetEditDrawer';
 import { OcrScannerDrawer } from '@/components/OcrScannerDrawer';
 import { OcrResultDrawer } from '@/components/OcrResultDrawer';
 import { AgentDrawer } from '@/components/AgentDrawer';
+import { GuidedTour } from '@/components/onboarding';
+import { useOnboardingStore } from '@/store/useOnboardingStore';
 import { parseOCRNumber } from '@/lib/ocrService';
 import { toast } from 'sonner';
 import Link from 'next/link';
@@ -55,6 +57,10 @@ export default function DashboardPage() {
   // Agent State
   const [showAgent, setShowAgent] = useState(false);
 
+  // Onboarding State
+  const { hasCompletedTour } = useOnboardingStore();
+  const [runTour, setRunTour] = useState(false);
+
   const {
     isProcessing,
     showModal,
@@ -75,6 +81,15 @@ export default function DashboardPage() {
   const handleScanClick = useCallback(() => {
     setShowOcrScanner(true);
   }, []);
+
+  // Start tour on first visit
+  useEffect(() => {
+    if (!hasCompletedTour) {
+      // Small delay to ensure DOM is ready
+      const timer = setTimeout(() => setRunTour(true), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [hasCompletedTour]);
 
   const handleOcrImageCaptured = useCallback(async (base64: string) => {
     setIsOcrProcessing(true);
@@ -248,7 +263,7 @@ export default function DashboardPage() {
 
         {/* Stats Grid */}
         <div className="px-4 mb-6">
-          <div className="grid grid-cols-2 gap-3">
+          <div id="stats-grid" className="grid grid-cols-2 gap-3">
             <div
               onClick={() => setShowTargetEdit(true)}
               className="col-span-2 cursor-pointer active:scale-[0.98] transition-transform"
@@ -432,6 +447,12 @@ export default function DashboardPage() {
 
       {/* Agent Drawer */}
       <AgentDrawer isOpen={showAgent} onClose={() => setShowAgent(false)} />
+
+      {/* Onboarding - Guided Tour */}
+      <GuidedTour
+        run={runTour && !hasCompletedTour}
+        onFinish={() => setRunTour(false)}
+      />
 
       <BottomNav />
     </div>

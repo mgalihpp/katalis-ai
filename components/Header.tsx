@@ -52,6 +52,7 @@ export function Header({ variant = 'default', onScanClick, onAgentClick }: Heade
         <div className="flex items-center gap-2">
           {onAgentClick && (
             <button
+              id="agent-button"
               onClick={onAgentClick}
               onMouseDown={createRippleEffect}
               className={cn(
@@ -68,6 +69,7 @@ export function Header({ variant = 'default', onScanClick, onAgentClick }: Heade
 
           {onScanClick && (
             <button
+              id="scan-button"
               onClick={onScanClick}
               onMouseDown={createRippleEffect}
               className={cn(

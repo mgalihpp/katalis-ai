@@ -19,11 +19,13 @@ import {
   LogOut,
   Lock,
   Loader2,
+  HelpCircle,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
 import { useUserStore, AppIconType } from '@/store/useUserStore';
+import { useOnboardingStore } from '@/store/useOnboardingStore';
 import { logoutAndClearData } from '@/lib/logout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,6 +85,7 @@ export default function SettingsPage() {
     setProfileImage,
     setAppIcon,
   } = useUserStore();
+  const { resetOnboarding } = useOnboardingStore();
   const { theme, setTheme } = useTheme();
 
   const [localStoreName, setLocalStoreName] = useState(storeName);
@@ -384,6 +387,31 @@ export default function SettingsPage() {
             >
               <LogOut className="w-4 h-4 mr-2" />
               Logout
+            </Button>
+          </div>
+        </section>
+
+        {/* Tutorial Section */}
+        <section className="space-y-4">
+          <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+            <HelpCircle className="w-4 h-4" />
+            <span>Bantuan</span>
+          </div>
+
+          <div className="bg-card rounded-2xl p-4 shadow-sm border space-y-3">
+            <div className="text-sm text-muted-foreground">
+              Ingin melihat panduan penggunaan aplikasi lagi? Tekan tombol di bawah untuk memulai tutorial dari awal.
+            </div>
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                resetOnboarding();
+                router.push('/dashboard');
+              }}
+            >
+              <HelpCircle className="w-4 h-4 mr-2" />
+              Putar Ulang Tutorial
             </Button>
           </div>
         </section>

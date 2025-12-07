@@ -27,8 +27,8 @@ export const AuthContextProvider = ({
     const [loading, setLoading] = useState(true);
     const pathname = usePathname();
 
-    // Skip loading screen for landing page and login page
-    const isPublicPage = pathname !== '/dashboard';
+    // Skip loading screen for public pages (non-dashboard routes)
+    const isPublicPage = !pathname.startsWith('/dashboard');
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (user) => {

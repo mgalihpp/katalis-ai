@@ -1,0 +1,1 @@
+export { GuidedTour } from './GuidedTour';

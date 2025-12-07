@@ -139,10 +139,10 @@ export function BottomNav() {
           {navItems.map((item) => {
             if (item.isVoice) {
               return (
-                <div key="voice" className="flex flex-col items-center -mt-8 select-none">
+                <div key="voice" id="voice-button" className="flex flex-col items-center -mt-6 select-none">
                   <button
                     className={cn(
-                      'w-16 h-16 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 touch-none relative',
+                      'w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all duration-200 touch-none relative',
                       'bg-primary hover:bg-primary/90',
                       isRecording && 'bg-accent scale-110',
                       isProcessing && 'bg-muted'
@@ -158,11 +158,11 @@ export function BottomNav() {
                     aria-label={isRecording ? 'Sedang merekam' : 'Tekan untuk bicara'}
                   >
                     {isProcessing ? (
-                      <Loader2 className="w-7 h-7 text-primary-foreground animate-spin" />
+                      <Loader2 className="w-6 h-6 text-primary-foreground animate-spin" />
                     ) : isRecording ? (
-                      <Square className="w-6 h-6 text-primary-foreground fill-current" />
+                      <Square className="w-5 h-5 text-primary-foreground fill-current" />
                     ) : (
-                      <Mic className="w-7 h-7 text-primary-foreground" />
+                      <Mic className="w-6 h-6 text-primary-foreground" />
                     )}
 
                     {/* Recording pulse indicator */}
@@ -183,17 +183,21 @@ export function BottomNav() {
             const isActive = pathname === item.path;
             const Icon = item.icon;
 
+            // Generate ID from path for tour targeting
+            const navId = item.path.replace('/dashboard/', 'nav-').replace('/dashboard', 'nav-home');
+
             return (
               <button
                 key={item.path}
+                id={navId}
                 onClick={() =>
                   router.push(item.path)
                 }
                 onMouseDown={createRippleEffect}
                 className={cn('nav-item flex-1 ripple', isActive && 'active')}
               >
-                <Icon className="w-5 h-5" />
-                <span className="text-xs font-medium">{item.label}</span>
+                <Icon className="w-4 h-4" />
+                <span className="text-[10px] font-medium">{item.label}</span>
               </button>
             );
           })}
