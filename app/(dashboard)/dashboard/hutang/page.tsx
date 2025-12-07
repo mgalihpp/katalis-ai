@@ -61,18 +61,18 @@ export default function HutangPage() {
                         <p className="text-xs text-white/80 mb-1">Total Piutang</p>
                         <p className="text-sm font-bold text-white">{formatRupiah(totalDebt)}</p>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
-                        <p className="text-xs text-white/80 mb-1">Sudah Dibayar</p>
+                    <div className="bg-emerald-600 backdrop-blur-sm rounded-xl p-3 text-center border border-white/50 shadow-lg">
+                        <p className="text-xs text-white/90 mb-1">Sudah Dibayar</p>
                         <p className="text-sm font-bold text-white">{formatRupiah(totalPaid)}</p>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center border border-white/10">
-                        <p className="text-xs text-white/80 mb-1">Belum Dibayar</p>
-                        <p className="text-sm font-bold text-white">{formatRupiah(totalRemaining)}</p>
+                    <div className="bg-red-500/70 backdrop-blur-sm rounded-xl p-3 text-center border border-amber-400/30">
+                        <p className="text-xs text-red-100 mb-1">Belum Dibayar</p>
+                        <p className="text-sm font-bold text-red-50">{formatRupiah(totalRemaining)}</p>
                     </div>
                 </div>
 
                 {/* Filter Pills */}
-                <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
+                <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
                     {filterOptions.map((option) => {
                         const Icon = option.icon;
                         const isActive = filter === option.value;

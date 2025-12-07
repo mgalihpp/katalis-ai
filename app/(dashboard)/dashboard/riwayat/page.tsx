@@ -108,7 +108,7 @@ export default function RiwayatPage() {
       </header>
 
       {/* Main Content Sheet */}
-      <div className="relative z-10 bg-background rounded-t-3xl px-4 pt-6 pb-24 min-h-[90dvh] shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)]">
+      <div className="relative z-10 bg-background rounded-t-3xl px-4 pt-6 pb-24 min-h-[100dvh] shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)]">
         {/* Search */}
         <div className="relative mb-4">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />

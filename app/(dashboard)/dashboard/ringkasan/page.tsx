@@ -204,7 +204,7 @@ export default function RingkasanPage() {
       </header>
 
       {/* Content Sheet */}
-      <div className="relative z-10 bg-background rounded-t-3xl px-4 pt-6 pb-24 min-h-[80dvh] shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)]">
+      <div className="relative z-10 bg-background rounded-t-3xl px-4 pt-6 pb-24 min-h-[100dvh] shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)]">
         {/* Profit Card - Hero */}
         <div
           className={cn(
@@ -428,8 +428,8 @@ export default function RingkasanPage() {
                       index === 0
                         ? 'bg-warning/20 text-warning'
                         : index === 1
-                        ? 'bg-muted text-muted-foreground'
-                        : 'bg-muted text-muted-foreground'
+                          ? 'bg-muted text-muted-foreground'
+                          : 'bg-muted text-muted-foreground'
                     )}
                   >
                     {index + 1}

@@ -74,7 +74,7 @@ export default function StockPage() {
       </header>
 
       {/* Main Content Sheet */}
-      <div className="relative z-10 bg-background rounded-t-3xl px-4 pt-6 pb-24 min-h-[90dvh] shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)]">
+      <div className="relative z-10 bg-background rounded-t-3xl px-4 pt-6 pb-24 min-h-[100dvh] shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.05)]">
         {/* Stats */}
         <div className="mb-6">
           <div className="grid grid-cols-3 gap-3">
