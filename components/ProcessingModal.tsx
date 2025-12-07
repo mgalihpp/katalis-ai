@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import {
   XCircle,
   Mic,
@@ -15,6 +16,8 @@ import { cn } from '@/lib/utils';
 import type { ParsedVoiceResult } from '@/types';
 import { formatRupiah } from '@/lib/utils';
 import { createRippleEffect } from '@/hooks/useRipple';
+import { useStockStore } from '@/store/useStockStore';
+import { useTransactionStore } from '@/store/useTransactionStore';
 import {
   Drawer,
   DrawerContent,
@@ -89,8 +92,76 @@ export function ProcessingModal({
   onCancel,
   onRetry,
 }: ProcessingModalProps) {
+  const { getStockByName } = useStockStore();
+  const { debts } = useTransactionStore();
   const config = result ? typeConfig[result.type] || typeConfig.sale : null;
   const TypeIcon = config?.icon;
+
+  // Enrich debt_add items with stock prices for preview, and handle LUNAS for debt_payment
+  const { enrichedResult, enrichedTotal } = useMemo(() => {
+    // Handle debt_payment with LUNAS amount
+    if (result?.type === 'debt_payment' && result.debt?.debtor_name) {
+      const debtorName = result.debt.debtor_name.toLowerCase();
+      const existingDebt = debts.find(d => 
+        d.debtor_name.toLowerCase().includes(debtorName) || 
+        debtorName.includes(d.debtor_name.toLowerCase())
+      );
+      
+      // If amount is "LUNAS" or not a number, use remaining debt amount
+      const isLunas = (result.debt.amount as unknown) === 'LUNAS' || result.debt.amount === null || typeof result.debt.amount !== 'number';
+      const total = isLunas && existingDebt ? existingDebt.remaining_amount : (typeof result.debt.amount === 'number' ? result.debt.amount : 0);
+      
+      return { enrichedResult: result, enrichedTotal: total };
+    }
+    
+    if (!result || result.type !== 'debt_add' || !result.transactions?.length) {
+      // Calculate regular total
+      const total = result?.transactions?.reduce((sum, t) => sum + (t.total_amount || 0), 0) || 
+                   (typeof result?.debt?.amount === 'number' ? result.debt.amount : 0);
+      return { enrichedResult: result, enrichedTotal: total };
+    }
+
+    const packUnits = ['dus', 'pak', 'box', 'karton', 'lusin', 'krat', 'peti'];
+    
+    const enrichedTransactions = result.transactions.map(item => {
+      if (!item.item_name) return item;
+
+      const stock = getStockByName(item.item_name);
+      let pricePerUnit = item.price_per_unit;
+
+      // If price not provided, look up from stock
+      if ((pricePerUnit === null || pricePerUnit === undefined) && stock) {
+        const unit = item.unit?.toLowerCase() || 'pcs';
+        const isPack = packUnits.includes(unit);
+
+        pricePerUnit = isPack
+          ? (stock.sell_per_pack ?? stock.sell_per_unit ?? null)
+          : (stock.sell_per_unit ?? null);
+      }
+
+      const qty = item.quantity || 1;
+      const total = pricePerUnit ? qty * pricePerUnit : 0;
+
+      return {
+        ...item,
+        price_per_unit: pricePerUnit,
+        total_amount: total,
+      };
+    });
+
+    const calculatedTotal = enrichedTransactions.reduce((sum, t) => sum + (t.total_amount || 0), 0);
+
+    return {
+      enrichedResult: {
+        ...result,
+        transactions: enrichedTransactions,
+      },
+      enrichedTotal: calculatedTotal,
+    };
+  }, [result, getStockByName, debts]);
+
+  // Use enriched result for display
+  const displayResult = enrichedResult;
 
   return (
     <Drawer open={isOpen} onOpenChange={(open) => !open && onCancel()}>
@@ -186,9 +257,9 @@ export function ProcessingModal({
                 </div>
 
                 {/* Items */}
-                {result.transactions && result.transactions.length > 0 && (
+                {displayResult?.transactions && displayResult.transactions.length > 0 && (
                   <div className="space-y-2">
-                    {result.transactions.map((item, idx) => (
+                    {displayResult.transactions.map((item, idx) => (
                       <div
                         key={idx}
                         className="flex items-center justify-between py-2 border-b border-border/50 last:border-0"
@@ -230,9 +301,11 @@ export function ProcessingModal({
                       </p>
                     </div>
                     <p className="text-sm font-semibold text-foreground">
-                      {result.debt.amount
+                      {typeof result.debt.amount === 'number' && result.debt.amount > 0
                         ? formatRupiah(result.debt.amount)
-                        : '-'}
+                        : enrichedTotal > 0
+                          ? formatRupiah(enrichedTotal)
+                          : '-'}
                     </p>
                   </div>
                 )}
@@ -330,14 +403,7 @@ export function ProcessingModal({
                         Total
                       </span>
                       <span className={cn('text-xl font-bold', config?.color)}>
-                        {formatRupiah(
-                          result.transactions?.reduce(
-                            (sum, t) => sum + (t.total_amount || 0),
-                            0
-                          ) ||
-                          result.debt?.amount ||
-                          0
-                        )}
+                        {formatRupiah(enrichedTotal)}
                       </span>
                     </div>
                   )}

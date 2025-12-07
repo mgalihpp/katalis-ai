@@ -70,34 +70,9 @@ export default function RiwayatPage() {
     {} as Record<string, Transaction[]>
   );
 
-  // Handle transaction click - route debt transactions to DebtDetailSheet
+  // Handle transaction click - always show TransactionDetailSheet for riwayat
   const handleTransactionClick = (transaction: Transaction) => {
-    if (
-      transaction.type === 'debt_add' ||
-      transaction.type === 'debt_payment'
-    ) {
-      const debtorNameFromItems = transaction.items[0]?.item_name;
-
-      let relatedDebt = debts.find(
-        (d) =>
-          d.debtor_name.toLowerCase() === debtorNameFromItems?.toLowerCase()
-      );
-
-      if (!relatedDebt && (transaction.note || transaction.raw_text)) {
-        const searchText = (
-          transaction.note || transaction.raw_text
-        ).toLowerCase();
-        relatedDebt = debts.find((d) =>
-          searchText.includes(d.debtor_name.toLowerCase())
-        );
-      }
-
-      if (relatedDebt) {
-        setSelectedDebt(relatedDebt);
-      }
-    } else {
-      setSelectedTransaction(transaction);
-    }
+    setSelectedTransaction(transaction);
   };
 
   return (

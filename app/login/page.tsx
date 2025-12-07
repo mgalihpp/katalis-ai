@@ -16,6 +16,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { LoadingScreen } from '@/components/LoadingScreen';
+import { toast } from 'sonner';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -85,6 +86,17 @@ export default function LoginPage() {
         try {
             if (isSignUp) {
                 await createUserWithEmailAndPassword(auth, email, password);
+                // Sign out immediately after registration - user must login manually
+                await auth.signOut();
+                // Switch to login mode and show success message
+                setIsSignUp(false);
+                setPassword('');
+                setConfirmPassword('');
+                setError('');
+                // Show success message via a temporary state
+                toast.success('Pendaftaran berhasil! Silakan masuk dengan akun baru Anda.');
+                setLoading(false);
+                return;
             } else {
                 await signInWithEmailAndPassword(auth, email, password);
             }

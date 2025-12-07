@@ -51,7 +51,7 @@ export function StockCard({ stock, onClick }: StockCardProps) {
             {stock.quantity}
           </p>
           <p className="text-xs text-muted-foreground">
-            {isOutOfStock ? 'Habis' : isLowStock ? 'Rendah' : stock.unit}
+            {isOutOfStock ? 'Habis' : stock.unit}
           </p>
         </div>
       </div>

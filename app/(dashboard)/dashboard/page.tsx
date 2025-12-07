@@ -179,11 +179,12 @@ export default function DashboardPage() {
     0
   );
 
-  // Calculate current sales based on period
+  // Calculate current sales based on period (including debt payments as income)
   const now = new Date();
   const periodSales = transactions
     .filter((t) => {
-      if (t.type !== 'sale') return false;
+      // Include sales and debt payments as income
+      if (t.type !== 'sale' && t.type !== 'debt_payment') return false;
       const tDate = new Date(t.created_at);
 
       switch (targetPeriod) {
@@ -214,38 +215,9 @@ export default function DashboardPage() {
     .filter((t) => new Date(t.created_at) < today)
     .slice(0, 5);
 
-  // Handle transaction click - route debt transactions to DebtDetailSheet
+  // Handle transaction click - always show TransactionDetailSheet for transaction details
   const handleTransactionClick = (transaction: Transaction) => {
-    if (
-      transaction.type === 'debt_add' ||
-      transaction.type === 'debt_payment'
-    ) {
-      // For debt transactions, find related debt by:
-      // 1. Checking if debtor name is in the items
-      // 2. Or searching through debts to find matching name in transaction note/raw_text
-      const debtorNameFromItems = transaction.items[0]?.item_name;
-
-      let relatedDebt = debts.find(
-        (d) =>
-          d.debtor_name.toLowerCase() === debtorNameFromItems?.toLowerCase()
-      );
-
-      // If not found in items, try to match from note or raw_text
-      if (!relatedDebt && (transaction.note || transaction.raw_text)) {
-        const searchText = (
-          transaction.note || transaction.raw_text
-        ).toLowerCase();
-        relatedDebt = debts.find((d) =>
-          searchText.includes(d.debtor_name.toLowerCase())
-        );
-      }
-
-      if (relatedDebt) {
-        setSelectedDebtId(relatedDebt.id);
-      }
-    } else {
-      setSelectedTransaction(transaction);
-    }
+    setSelectedTransaction(transaction);
   };
 
   if (!isMounted) {

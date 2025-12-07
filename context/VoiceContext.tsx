@@ -243,7 +243,10 @@ export function VoiceProvider({ children }: { children: ReactNode }) {
   const handleConfirm = useCallback(() => {
     if (currentResult) {
       if (currentResult.parsed.type === 'stock_add' && currentResult.parsed.stock) {
+        // Add stock first
         addStock(currentResult.parsed);
+        // Also create a transaction record for tracking
+        addTransaction(currentResult.parsed);
         toast.success('Stok berhasil ditambahkan!');
       } else if (currentResult.parsed.type === 'price_update' && currentResult.parsed.stock) {
         const updated = updateStockPrice(currentResult.parsed);
