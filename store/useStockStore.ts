@@ -128,8 +128,8 @@ export const useStockStore = create<StockStore>()(
             const newPackQuantity = existing.quantity + quantity;
             // If adding pack units, also add to small_unit_quantity
             const addedPcs = newUnitsPerPack ? quantity * newUnitsPerPack : 0;
-            const newSmallUnitQuantity = existing.small_unit_quantity !== null 
-              ? existing.small_unit_quantity + addedPcs 
+            const newSmallUnitQuantity = existing.small_unit_quantity !== null
+              ? existing.small_unit_quantity + addedPcs
               : (newUnitsPerPack ? newPackQuantity * newUnitsPerPack : null);
 
             updatedStocks[existingIndex] = {
@@ -348,12 +348,9 @@ export const useStockStore = create<StockStore>()(
       // For purchase: subtract the quantity that was added
       // For sale: add back the quantity that was subtracted
       reverseStockFromTransaction: (itemName, quantity, type, unit = 'pcs') => {
-        console.log('[reverseStock] Called with:', { itemName, quantity, type, unit });
         const normalizedName = normalizeItemName(itemName);
         const normalizedUnit = normalizeUnit(unit);
         const now = new Date().toISOString();
-
-        console.log('[reverseStock] Normalized:', { normalizedName, normalizedUnit });
 
         set((state) => {
           const existingIndex = state.stocks.findIndex(
@@ -391,9 +388,9 @@ export const useStockStore = create<StockStore>()(
           // Calculate new pack quantity from small_unit_quantity
           const newPackQty = (newSmallUnitQty !== null && effectiveUnitsPerPack)
             ? Math.floor(newSmallUnitQty / effectiveUnitsPerPack)
-            : (type === 'purchase' 
-                ? Math.max(0, existing.quantity - quantity) 
-                : existing.quantity + quantity);
+            : (type === 'purchase'
+              ? Math.max(0, existing.quantity - quantity)
+              : existing.quantity + quantity);
 
           // Create movement record for the reversal
           const movement: StockMovement = {
@@ -506,17 +503,17 @@ export const useStockStore = create<StockStore>()(
               const filteredItems = t.items.filter((item: TransactionItem) =>
                 normalizeItemName(item.item_name) !== normalizedName
               );
-              
+
               // Recalculate total amount
               const newTotal = filteredItems.reduce((sum, item) => sum + item.total_amount, 0);
-              
+
               return {
                 ...t,
                 items: filteredItems,
                 total_amount: newTotal,
               };
             });
-            
+
             // Only keep transactions that still have items
             return {
               transactions: updatedTransactions.filter(t => t.items.length > 0),
