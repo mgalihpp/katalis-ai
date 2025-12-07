@@ -40,10 +40,10 @@ const typeConfig = {
   },
   stock_add: {
     icon: Package,
-    iconBg: 'bg-gradient-to-br from-primary/20 to-primary/5',
-    iconColor: 'text-primary',
-    amountColor: 'text-primary',
-    prefix: '+',
+    iconBg: 'bg-gradient-to-br from-purchase/20 to-purchase/5',
+    iconColor: 'text-purchase',
+    amountColor: 'text-purchase',
+    prefix: '-',
   },
   stock_check: {
     icon: Package,
@@ -69,11 +69,48 @@ export function TransactionDetailCard({ transaction }: TransactionDetailCardProp
   const primaryItem = transaction.items[0];
   const itemCount = transaction.items.length;
 
-  // Create display name with smart truncation
-  const displayName = primaryItem?.item_name || formatTransactionType(transaction.type);
-  const subtitle = itemCount > 1
-    ? `${itemCount} item`
-    : (primaryItem?.quantity ? `${primaryItem.quantity} ${primaryItem.unit || 'pcs'}` : formatTransactionType(transaction.type));
+  // For debt transactions, extract debtor name from raw_text
+  const getDebtorName = () => {
+    const text = transaction.raw_text || transaction.note || '';
+    // Try to match "hutang Pak/Bu/Mas Name" pattern
+    const hutangMatch = text.match(/hutang\s+((?:pak|bu|mas|mbak|ibu|bapak)\s+\w+)/i);
+    if (hutangMatch) return hutangMatch[1];
+    // Try to match name at start like "Pak Name ngutang"
+    const startMatch = text.match(/^((?:pak|bu|mas|mbak|ibu|bapak)\s+\w+)/i);
+    if (startMatch) return startMatch[1];
+    // Fallback
+    const nameMatch = text.match(/(?:pak|bu|mas|mbak|ibu|bapak)\s+\w+/i);
+    return nameMatch?.[0] || null;
+  };
+
+  // Create display name based on transaction type
+  let displayName: string;
+  let subtitle: string;
+
+  if (transaction.type === 'debt_add') {
+    // For debt_add: show "Pak Lukman berhutang" as title
+    const debtorName = getDebtorName();
+    displayName = debtorName ? `${debtorName} berhutang` : 'Piutang Baru';
+    // Subtitle shows items: "56 peti Telur" or "3 item"
+    if (itemCount > 1) {
+      subtitle = `${itemCount} item`;
+    } else if (primaryItem?.quantity && primaryItem?.item_name) {
+      subtitle = `${primaryItem.quantity} ${primaryItem.unit || 'pcs'} ${primaryItem.item_name}`;
+    } else {
+      subtitle = 'Piutang Baru';
+    }
+  } else if (transaction.type === 'debt_payment') {
+    // For debt_payment: show "Pembayaran Pak Lukman" as title
+    const debtorName = getDebtorName();
+    displayName = debtorName ? `Pembayaran ${debtorName}` : 'Bayar Hutang';
+    subtitle = 'Bayar Hutang';
+  } else {
+    // Original logic for other transaction types
+    displayName = primaryItem?.item_name || formatTransactionType(transaction.type);
+    subtitle = itemCount > 1
+      ? `${itemCount} item`
+      : (primaryItem?.quantity ? `${primaryItem.quantity} ${primaryItem.unit || 'pcs'}` : formatTransactionType(transaction.type));
+  }
 
   return (
     <div

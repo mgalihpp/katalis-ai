@@ -124,9 +124,18 @@ export const useStockStore = create<StockStore>()(
               calculatedModalPerUnit = Math.round(newModalPerPack / newUnitsPerPack);
             }
 
+            // Calculate new quantities
+            const newPackQuantity = existing.quantity + quantity;
+            // If adding pack units, also add to small_unit_quantity
+            const addedPcs = newUnitsPerPack ? quantity * newUnitsPerPack : 0;
+            const newSmallUnitQuantity = existing.small_unit_quantity !== null 
+              ? existing.small_unit_quantity + addedPcs 
+              : (newUnitsPerPack ? newPackQuantity * newUnitsPerPack : null);
+
             updatedStocks[existingIndex] = {
               ...existing,
-              quantity: existing.quantity + quantity,
+              quantity: newPackQuantity,
+              small_unit_quantity: newSmallUnitQuantity,
               units_per_pack: newUnitsPerPack,
               modal_per_pack: newModalPerPack,
               modal_per_unit: calculatedModalPerUnit,

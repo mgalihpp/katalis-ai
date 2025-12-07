@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { Sparkles, Send } from 'lucide-react';
+import { Sparkles, Send, Plus, History } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from '@/components/ui/drawer';
 import { useStockStore } from '@/store/useStockStore';
 import { useTransactionStore } from '@/store/useTransactionStore';
 import { useUserStore } from '@/store/useUserStore';
+import { useChatHistoryStore, Conversation } from '@/store/useChatHistoryStore';
 import { createRippleEffect } from '@/hooks/useRipple';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -16,6 +17,7 @@ import {
   TypingIndicator,
   EmptyAgentState,
 } from '@/components/agent/ChatMessages';
+import { InlineChatHistory } from '@/components/agent/InlineChatHistory';
 
 interface Message {
   role: 'user' | 'assistant' | 'system' | 'tool';
@@ -36,11 +38,14 @@ export function AgentDrawer({ isOpen, onClose }: AgentDrawerProps) {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [callingTools, setCallingTools] = useState<string[]>([]);
+  const [showHistory, setShowHistory] = useState(false);
+  const [conversationId, setConversationId] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const stockStore = useStockStore();
   const transactionStore = useTransactionStore();
+  const { saveConversation, createConversation, setActiveConversation } = useChatHistoryStore();
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -55,6 +60,42 @@ export function AgentDrawer({ isOpen, onClose }: AgentDrawerProps) {
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
+
+  // Save conversation when drawer closes
+  useEffect(() => {
+    if (!isOpen && conversationId && messages.length > 0) {
+      saveConversation(conversationId, messages);
+    }
+  }, [isOpen, conversationId, messages, saveConversation]);
+
+  // Initialize conversation ID when first message is sent
+  useEffect(() => {
+    if (messages.length === 1 && !conversationId) {
+      const newId = createConversation();
+      setConversationId(newId);
+    }
+  }, [messages.length, conversationId, createConversation]);
+
+  const handleNewChat = () => {
+    if (conversationId && messages.length > 0) {
+      saveConversation(conversationId, messages);
+    }
+    setMessages([]);
+    setConversationId(null);
+    setActiveConversation(null);
+    setInput('');
+    inputRef.current?.focus();
+  };
+
+  const handleLoadConversation = (conversation: Conversation) => {
+    if (conversationId && messages.length > 0) {
+      saveConversation(conversationId, messages);
+    }
+    setMessages(conversation.messages);
+    setConversationId(conversation.id);
+    setActiveConversation(conversation.id);
+    setShowHistory(false);
+  };
 
   const executeTool = useCallback(
     (toolCall: any) => executeAgentTool(toolCall, stockStore, transactionStore),
@@ -190,79 +231,105 @@ export function AgentDrawer({ isOpen, onClose }: AgentDrawerProps) {
       <DrawerContent className="h-[85dvh] flex flex-col overflow-hidden">
         <div className="mx-auto w-full max-w-lg flex flex-col h-full min-h-0">
           <DrawerHeader className="shrink-0 border-b border-border/50 pb-4">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-primary" />
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-primary" />
+                </div>
+                <div className="text-left">
+                  <DrawerTitle className="text-lg">Asisten {storeName}</DrawerTitle>
+                  <p className="text-sm text-muted-foreground">Tanya stok, hutang, atau omset</p>
+                </div>
               </div>
-              <div className="text-left">
-                <DrawerTitle className="text-lg">Asisten {storeName}</DrawerTitle>
-                <p className="text-sm text-muted-foreground">Tanya stok, hutang, atau omset</p>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setShowHistory(true)}
+                  className="p-2 rounded-lg hover:bg-muted transition-colors"
+                  title="Riwayat Chat"
+                >
+                  <History className="w-5 h-5 text-muted-foreground" />
+                </button>
+                <button
+                  onClick={handleNewChat}
+                  className="p-2 rounded-lg hover:bg-muted transition-colors"
+                  title="Chat Baru"
+                >
+                  <Plus className="w-5 h-5 text-muted-foreground" />
+                </button>
               </div>
             </div>
           </DrawerHeader>
 
-          {/* Chat Area */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 p-4 space-y-4 bg-muted/20">
-            {messages.length === 0 && <EmptyAgentState storeName={storeName} />}
-            {messages.map((msg, idx) => <ChatMessage key={idx} message={msg} index={idx} />)}
-            {callingTools.length > 0 && <ToolCallingIndicator tools={callingTools} />}
-            {isLoading && callingTools.length === 0 && <TypingIndicator />}
-          </div>
-
-          {/* Shortcut Templates */}
-          {messages.length === 0 && (
-            <div className="shrink-0 px-4 py-2 bg-background border-t border-border/50 overflow-x-auto">
-              <div className="flex gap-2 whitespace-nowrap">
-                {[
-                  { label: '❓ Kamu bisa apa?', query: 'Kamu bisa melakukan apa saja?' },
-                  { label: '📊 Omset hari ini', query: 'Berapa omset hari ini?' },
-                  { label: '📦 Stok menipis', query: 'Barang apa yang stoknya menipis?' },
-                  { label: '🔥 Produk terlaris', query: 'Barang apa yang paling laris hari ini?' },
-                  { label: '💰 Siapa yang hutang?', query: 'Siapa saja yang punya hutang?' },
-                ].map((shortcut, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      setInput(shortcut.query);
-                      inputRef.current?.focus();
-                    }}
-                    className="px-3 py-1.5 text-xs bg-muted hover:bg-muted/80 rounded-full text-foreground font-medium transition-colors"
-                  >
-                    {shortcut.label}
-                  </button>
-                ))}
+          {/* Conditional: Show History or Chat */}
+          {showHistory ? (
+            <InlineChatHistory 
+              onBack={() => setShowHistory(false)} 
+              onSelectConversation={handleLoadConversation}
+            />
+          ) : (
+            <>
+              {/* Chat Area */}
+              <div ref={scrollRef} className="flex-1 overflow-y-auto min-h-0 p-4 space-y-4 bg-muted/20">
+                {messages.length === 0 && <EmptyAgentState storeName={storeName} />}
+                {messages.map((msg, idx) => <ChatMessage key={idx} message={msg} index={idx} />)}
+                {callingTools.length > 0 && <ToolCallingIndicator tools={callingTools} />}
+                {isLoading && callingTools.length === 0 && <TypingIndicator />}
               </div>
-            </div>
-          )}
 
-          {/* Input Area */}
-          <div className="shrink-0 p-4 bg-background border-t border-border">
-            <div className="flex items-center gap-2 bg-muted/50 p-2 rounded-2xl border border-transparent focus-within:border-primary/50 transition-colors">
-              <input
-                ref={inputRef}
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Ketik pesan..."
-                className="flex-1 bg-transparent border-none outline-none px-2 text-sm"
-                disabled={isLoading}
-              />
-              <button
-                onClick={handleSend}
-                onMouseDown={createRippleEffect}
-                disabled={!input.trim() || isLoading}
-                className={cn(
-                  'p-2 rounded-xl transition-all',
-                  input.trim() && !isLoading
-                    ? 'bg-primary text-primary-foreground shadow-sm hover:translate-y-[-1px]'
-                    : 'bg-muted text-muted-foreground cursor-not-allowed'
-                )}
-              >
-                <Send className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
+              {/* Shortcut Templates - Always visible */}
+              <div className="shrink-0 px-4 py-2 bg-background border-t border-border/50 overflow-x-auto">
+                <div className="flex gap-2 whitespace-nowrap">
+                  {[
+                    { label: '❓ Kamu bisa apa?', query: 'Kamu bisa melakukan apa saja?' },
+                    { label: '📊 Omset hari ini', query: 'Berapa omset hari ini?' },
+                    { label: '📦 Stok menipis', query: 'Barang apa yang stoknya menipis?' },
+                    { label: '🔥 Produk terlaris', query: 'Barang apa yang paling laris hari ini?' },
+                    { label: '💰 Siapa yang hutang?', query: 'Siapa saja yang punya hutang?' },
+                  ].map((shortcut, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setInput(shortcut.query);
+                        inputRef.current?.focus();
+                      }}
+                      className="px-3 py-1.5 text-xs bg-muted hover:bg-muted/80 rounded-full text-foreground font-medium transition-colors"
+                    >
+                      {shortcut.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Input Area */}
+              <div className="shrink-0 p-4 bg-background border-t border-border">
+                <div className="flex items-center gap-2 bg-muted/50 p-2 rounded-2xl border border-transparent focus-within:border-primary/50 transition-colors">
+                  <input
+                    ref={inputRef}
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Ketik pesan..."
+                    className="flex-1 bg-transparent border-none outline-none px-2 text-sm"
+                    disabled={isLoading}
+                  />
+                  <button
+                    onClick={handleSend}
+                    onMouseDown={createRippleEffect}
+                    disabled={!input.trim() || isLoading}
+                    className={cn(
+                      'p-2 rounded-xl transition-all',
+                      input.trim() && !isLoading
+                        ? 'bg-primary text-primary-foreground shadow-sm hover:translate-y-[-1px]'
+                        : 'bg-muted text-muted-foreground cursor-not-allowed'
+                    )}
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </DrawerContent>
     </Drawer>

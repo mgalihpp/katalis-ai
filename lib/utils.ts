@@ -9,8 +9,26 @@ export function cn(...inputs: ClassValue[]) {
 
 /**
  * Format number as Indonesian Rupiah currency
+ * Abbreviates large numbers: 10jt+ uses 'jt', 1M+ uses 'M'
  */
-export function formatRupiah(amount: number): string {
+export function formatRupiah(amount: number, abbreviate: boolean = true): string {
+  const absAmount = Math.abs(amount);
+  const sign = amount < 0 ? '-' : '';
+  
+  // Abbreviate large numbers
+  if (abbreviate && absAmount >= 1_000_000_000) {
+    // Billions -> M (Miliar)
+    const value = absAmount / 1_000_000_000;
+    return `${sign}Rp ${value.toFixed(1).replace('.0', '')} M`;
+  }
+  
+  if (abbreviate && absAmount >= 10_000_000) {
+    // 10+ Million -> jt (juta)
+    const value = absAmount / 1_000_000;
+    return `${sign}Rp ${value.toFixed(1).replace('.0', '')} jt`;
+  }
+  
+  // Standard format for smaller amounts
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',

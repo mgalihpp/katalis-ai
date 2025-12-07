@@ -118,13 +118,28 @@ Contoh parsing PRODUK KEMASAN:
 - "Jual Rokok Sampoerna 2 bungkus sama Djarum 1 bungkus, totalnya 65 ribu" → type: "sale", transactions: [{item: Rokok Sampoerna, qty: 2, unit: pcs, price: null, total: null}, {item: Djarum, qty: 1, unit: pcs, price: null, total: 65000}]
 
 Contoh parsing HUTANG:
-- "Bu Tejo ngutang 50 ribu" → type: "debt_add", debt: {debtor: Bu Tejo, amount: 50000, original_amount: null}
+- "Bu Tejo ngutang 50 ribu" → type: "debt_add", debt: {debtor: Bu Tejo, amount: 50000, original_amount: null}, transactions: []
+- "Pak Wawan ngutang 2 dus Indomie goreng" → type: "debt_add", debt: {debtor: Pak Wawan, amount: null, original_amount: null}, transactions: [{item: Indomie Goreng, qty: 2, unit: dus, price: null}]
+- "Bu Ani ngutang beli 3 indomie sama 2 teh botol" → type: "debt_add", debt: {debtor: Bu Ani, amount: null, original_amount: null}, transactions: [{item: Indomie, qty: 3, unit: pcs, price: null}, {item: Teh Botol, qty: 2, unit: pcs, price: null}]
+
+Contoh parsing PEMBAYARAN HUTANG:
 - "Pak Ahmad bayar 25 ribu" → type: "debt_payment", debt: {debtor: Pak Ahmad, amount: 25000, original_amount: null}
 - "Mas Budi yang kemarin hutang 50 ribu, sekarang bayar 25 ribu" → type: "debt_payment", debt: {debtor: Mas Budi, amount: 25000, original_amount: 50000}
 - "Bu Ani hutang 100 ribu, langsung bayar 50 ribu" → type: "debt_payment", debt: {debtor: Bu Ani, amount: 50000, original_amount: 100000}
 - "Pak RT cicil 50 ribu" → type: "debt_payment", debt: {debtor: Pak RT, amount: 50000, original_amount: null}
+- "Pak Lukman membayar hutangnya" → type: "debt_payment", debt: {debtor: Pak Lukman, amount: "LUNAS", original_amount: null}
+- "Pak Anwar melunasi hutangnya" → type: "debt_payment", debt: {debtor: Pak Anwar, amount: "LUNAS", original_amount: null}
+- "Bu Siti lunasi hutang" → type: "debt_payment", debt: {debtor: Bu Siti, amount: "LUNAS", original_amount: null}
+- "Hutang Pak Joko sudah dibayar" → type: "debt_payment", debt: {debtor: Pak Joko, amount: "LUNAS", original_amount: null}
+- "Pak Ahmad bayar hutang 50 ribu" → type: "debt_payment", debt: {debtor: Pak Ahmad, amount: 50000, original_amount: null}
 
-ATURAN HUTANG PENTING:
+ATURAN HUTANG DENGAN BARANG (PENTING!):
+- Jika hutang menyebutkan BARANG (bukan angka uang), ISI transactions array dengan barang tersebut
+- Set debt.amount = null karena akan dihitung dari harga barang di sistem
+- Contoh: "Pak X ngutang 2 dus indomie" → transactions: [{item: Indomie, qty: 2, unit: dus}], debt: {amount: null}
+
+ATURAN PEMBAYARAN HUTANG (PENTING!):
+- Jika ada kata "membayar hutangnya" / "melunasi hutangnya" / "lunasi hutang" / "sudah dibayar" / "sudah lunas" TANPA angka → set amount: "LUNAS"
 - Jika ada kata "hutang" / "ngutang" / "bon" DAN ada kata "bayar" / "lunas" / "cicil" → gunakan "debt_payment"
 - Jika user menyebut KEDUA nilai (hutang awal DAN pembayaran):
   * amount = nilai PEMBAYARAN

@@ -77,9 +77,9 @@ const typeConfig = {
   stock_add: {
     icon: Package,
     label: 'Tambah Stok',
-    color: 'text-primary',
-    bg: 'bg-primary/10',
-    prefix: '',
+    color: 'text-purchase',
+    bg: 'bg-purchase/10',
+    prefix: '-',
   },
   stock_check: {
     icon: Package,
@@ -242,6 +242,30 @@ export function TransactionDetailSheet({
                   )}
                 </p>
               </div>
+
+              {/* Debtor Info for Debt Transactions */}
+              {(transaction.type === 'debt_add' || transaction.type === 'debt_payment') && (
+                <div className="p-4 bg-muted/50 rounded-2xl">
+                  <p className="text-sm text-muted-foreground mb-1">
+                    {transaction.type === 'debt_add' ? 'Piutang dari' : 'Pembayaran dari'}
+                  </p>
+                  <p className="text-lg font-semibold text-foreground">
+                    {/* Extract debtor name from raw_text or note */}
+                    {(() => {
+                      const text = transaction.raw_text || transaction.note || '';
+                      // Try to match "hutang Pak/Bu/Mas Name" pattern
+                      const hutangMatch = text.match(/hutang\s+((?:pak|bu|mas|mbak|ibu|bapak)\s+\w+)/i);
+                      if (hutangMatch) return hutangMatch[1];
+                      // Try to match name at start like "Pak Name ngutang"
+                      const startMatch = text.match(/^((?:pak|bu|mas|mbak|ibu|bapak)\s+\w+)/i);
+                      if (startMatch) return startMatch[1];
+                      // Fallback to first two words after common prefixes
+                      const nameMatch = text.match(/(?:pak|bu|mas|mbak|ibu|bapak)\s+\w+/i);
+                      return nameMatch?.[0] || transaction.note || 'Tidak diketahui';
+                    })()}
+                  </p>
+                </div>
+              )}
 
               {/* Items List */}
               <div>
