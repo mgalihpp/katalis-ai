@@ -51,7 +51,8 @@ export function StockDetailSheet({ stockId, isOpen, onClose }: StockDetailSheetP
 
   const movements = getMovementsByStockId(stock.id).slice(0, 10);
   const isLowStock = stock.quantity <= stock.min_stock;
-  const isOutOfStock = stock.quantity === 0;
+  // Only truly out of stock when both pack quantity AND small unit quantity are 0
+  const isOutOfStock = stock.quantity === 0 && (stock.small_unit_quantity === null || stock.small_unit_quantity === 0);
 
   const statusBg = isOutOfStock ? 'bg-destructive/10' : isLowStock ? 'bg-accent/10' : 'bg-primary/10';
   const statusText = isOutOfStock ? 'text-destructive' : isLowStock ? 'text-accent' : 'text-primary';

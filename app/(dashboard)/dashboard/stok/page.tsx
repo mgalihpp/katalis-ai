@@ -31,7 +31,8 @@ export default function StockPage() {
   } = useVoice();
 
   const lowStocks = getLowStocks();
-  const outOfStockCount = stocks.filter((s) => s.quantity === 0).length;
+  // Only truly out of stock when both pack quantity AND small unit quantity are 0
+  const outOfStockCount = stocks.filter((s) => s.quantity === 0 && (s.small_unit_quantity === null || s.small_unit_quantity === 0)).length;
 
   // Filter stocks
   const filteredStocks = stocks.filter((stock) => {
@@ -43,10 +44,13 @@ export default function StockPage() {
     }
 
     if (filter === 'low') {
-      return stock.quantity <= stock.min_stock && stock.quantity > 0;
+      // Low stock but not completely out
+      const isOutOfStock = stock.quantity === 0 && (stock.small_unit_quantity === null || stock.small_unit_quantity === 0);
+      return stock.quantity <= stock.min_stock && !isOutOfStock;
     }
     if (filter === 'out') {
-      return stock.quantity === 0;
+      // Truly out of stock: both pack and small unit are 0
+      return stock.quantity === 0 && (stock.small_unit_quantity === null || stock.small_unit_quantity === 0);
     }
 
     return true;

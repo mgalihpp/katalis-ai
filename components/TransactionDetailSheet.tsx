@@ -102,12 +102,13 @@ export function TransactionDetailSheet({
   isOpen,
   onClose,
 }: TransactionDetailSheetProps) {
-  const { transactions, updateTransaction, deleteTransaction } =
+  const { transactions, updateTransaction, deleteTransaction, removeItemFromTransaction } =
     useTransactionStore();
   const transaction = transactions.find((t) => t.id === transactionId) || null;
 
   const [isEditing, setIsEditing] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{ index: number; name: string } | null>(null);
   const [editedItems, setEditedItems] = useState<Transaction['items']>([]);
   const [editedNote, setEditedNote] = useState('');
 
@@ -311,7 +312,7 @@ export function TransactionDetailSheet({
                           </div>
                         ) : (
                           <div className="flex items-center justify-between">
-                            <div>
+                            <div className="flex-1 min-w-0">
                               <p className="font-medium text-foreground">
                                 {item.item_name}
                               </p>
@@ -321,9 +322,19 @@ export function TransactionDetailSheet({
                                   ` x ${formatRupiah(item.price_per_unit)}`}
                               </p>
                             </div>
-                            <p className="font-semibold text-foreground">
-                              {formatRupiah(item.total_amount)}
-                            </p>
+                            <div className="flex items-center gap-2">
+                              <p className="font-semibold text-foreground">
+                                {formatRupiah(item.total_amount)}
+                              </p>
+                              {transaction.items.length > 1 && (
+                                <button
+                                  onClick={() => setItemToDelete({ index, name: item.item_name })}
+                                  className="w-7 h-7 rounded-md bg-destructive/10 text-destructive flex items-center justify-center hover:bg-destructive/20 transition-all shrink-0"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              )}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -420,6 +431,40 @@ export function TransactionDetailSheet({
             <AlertDialogCancel className="flex-1 mt-0">Batal</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
+              className="flex-1 bg-destructive text-primary-foreground hover:bg-destructive/90"
+            >
+              Hapus
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Item Delete Confirmation Dialog */}
+      <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
+        <AlertDialogContent className="max-w-sm rounded-2xl">
+          <AlertDialogHeader>
+            <div className="w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-2">
+              <Trash2 className="w-6 h-6 text-destructive" />
+            </div>
+            <AlertDialogTitle className="text-center">
+              Hapus Item?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center">
+              Item <strong>&quot;{itemToDelete?.name}&quot;</strong> akan dihapus dari transaksi ini. Stok akan otomatis disesuaikan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-3 sm:justify-center">
+            <AlertDialogCancel className="flex-1 mt-0">Batal</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (itemToDelete && transaction) {
+                  removeItemFromTransaction(transaction.id, itemToDelete.index);
+                  setItemToDelete(null);
+                  if (transaction.items.length === 1) {
+                    onClose();
+                  }
+                }
+              }}
               className="flex-1 bg-destructive text-primary-foreground hover:bg-destructive/90"
             >
               Hapus
