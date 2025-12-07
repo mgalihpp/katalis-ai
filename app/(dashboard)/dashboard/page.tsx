@@ -131,6 +131,8 @@ export default function DashboardPage() {
       }));
 
       // Create transaction via store
+      // Note: addTransaction already handles stock updates for 'purchase' type automatically
+      // so we don't need to call updateStockFromTransaction separately
       addTransaction({
         type: 'purchase', // OCR receipts are typically purchases
         transactions: items,
@@ -143,30 +145,11 @@ export default function DashboardPage() {
         confidence: result.metadata?.confidence_score || 0.8,
       });
 
-      // Update stock if enabled
-      if (addToStock) {
-        items.forEach((item) => {
-          if (item.item_name && item.quantity) {
-            updateStockFromTransaction(
-              item.item_name,
-              item.quantity,
-              'purchase',
-              item.unit || 'pcs', // Use unit from item
-              item.price_per_unit || undefined
-            );
-          }
-        });
-      }
-
-      toast.success(
-        addToStock
-          ? 'Transaksi disimpan & stok diperbarui!'
-          : 'Transaksi berhasil disimpan!'
-      );
+      toast.success('Transaksi disimpan & stok diperbarui!');
       setShowOcrResult(false);
       setOcrResult(null);
     },
-    [addTransaction, updateStockFromTransaction]
+    [addTransaction]
   );
 
   const todayTransactions = getTodayTransactions();
