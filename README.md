@@ -14,7 +14,7 @@
   <a href="#-demo">Demo</a> •
   <a href="#-instalasi">Instalasi</a> •
   <a href="#-cara-penggunaan">Penggunaan</a> •
-  <a href="#-tech-stack">Tech Stack</a>
+  <a href="#️-tech-stack">Tech Stack</a>
 </p>
 
 ---
