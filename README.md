@@ -24,22 +24,24 @@
 Bayangkan seorang **pedagang sayur di pasar tradisional**:
 
 > 🥬 Tangan penuh lumpur dan basah dari menimbang sayuran  
-> 📱 Tidak mungkin pegang HP untuk ketik-ketik input transaksi  
+> 📱 Mustahil mengetik panjang-panjang di HP untuk input transaksi  
 > 💸 Pelanggan antri ramai, tidak sempat catat siapa yang hutang  
 > 📝 Akhirnya lupa berapa yang sudah terjual hari ini  
 
 **Masalah nyata pelaku UMKM Indonesia:**
-- ❌ **Tangan kotor/basah** saat kerja - tidak bisa sentuh layar HP
-- ❌ **Sibuk melayani pelanggan** - tidak sempat mengetik
+- ❌ **Repot mengetik** - harus ketik nama barang, jumlah, harga satu-satu
+- ❌ **Sibuk melayani pelanggan** - tidak sempat input manual
 - ❌ **Tidak terbiasa** dengan aplikasi kasir yang rumit
 - ❌ **Lupa mencatat** hutang pelanggan
 - ❌ **Bingung menghitung** stok dan modal di akhir hari
 
-### 💡 Solusi: Tinggal Ngomong Aja!
+### 💡 Solusi: Tap Sekali, Ngomong, Selesai!
 
-**Katalis AI** hadir dengan pendekatan **Voice-First** - pedagang cukup **bicara** tanpa perlu menyentuh HP:
+**Katalis AI** hadir dengan pendekatan **Voice-First** - pedagang cukup **tap 1x tombol, bicara, tap konfirmasi**. Tidak perlu mengetik panjang!
 
-*"Baru kejual kangkung 3 ikat, bayem 2 ikat, tahu 5 potong"*
+| Cara Lama (Ketik Manual) | Cara Baru (Katalis AI) |
+|--------------------------|------------------------|
+| Input barang → Isi jumlah → Isi harga → Simpan → *(ulangi per item)* | **Tap 🎤 → Bicara → Tap ✓** |
 
 AI akan otomatis mencatat semuanya! ✨
 
