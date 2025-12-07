@@ -1,7 +1,7 @@
 # 🎙️ Katalis AI - Asisten Kasir Berbasis Suara
 
 <p align="center">
-  <img src="public/og-cover.png" alt="Katalis AI cover" width="120" />
+  <img src="public/og-cover.png" alt="Katalis AI cover" />
 </p>
 
 <p align="center">
