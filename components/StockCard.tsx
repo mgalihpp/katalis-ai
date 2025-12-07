@@ -12,7 +12,8 @@ interface StockCardProps {
 
 export function StockCard({ stock, onClick }: StockCardProps) {
   const isLowStock = stock.quantity <= stock.min_stock;
-  const isOutOfStock = stock.quantity === 0;
+  // Only truly out of stock when both pack quantity AND small unit quantity are 0
+  const isOutOfStock = stock.quantity === 0 && (stock.small_unit_quantity === null || stock.small_unit_quantity === 0);
 
   return (
     <div

@@ -11,6 +11,7 @@ interface StockStore {
   updateStock: (id: string, updates: Partial<StockItem>) => void;
   deleteStock: (id: string) => void;
   updateStockFromTransaction: (itemName: string, quantity: number, type: 'sale' | 'purchase', unit?: string, price?: number, unitsPerPack?: number) => void;
+  reverseStockFromTransaction: (itemName: string, quantity: number, type: 'sale' | 'purchase', unit?: string) => void;
   updateStockPrice: (result: ParsedVoiceResult) => boolean; // Returns true if stock found and updated
   getStockByName: (name: string) => StockItem | undefined;
   getAllStocks: () => StockItem[];
@@ -334,6 +335,82 @@ export const useStockStore = create<StockStore>()(
         });
       },
 
+      // Reverse stock changes when a transaction is deleted
+      // For purchase: subtract the quantity that was added
+      // For sale: add back the quantity that was subtracted
+      reverseStockFromTransaction: (itemName, quantity, type, unit = 'pcs') => {
+        console.log('[reverseStock] Called with:', { itemName, quantity, type, unit });
+        const normalizedName = normalizeItemName(itemName);
+        const normalizedUnit = normalizeUnit(unit);
+        const now = new Date().toISOString();
+
+        console.log('[reverseStock] Normalized:', { normalizedName, normalizedUnit });
+
+        set((state) => {
+          const existingIndex = state.stocks.findIndex(
+            s => s.normalized_name === normalizedName
+          );
+
+          if (existingIndex < 0) {
+            // Stock doesn't exist, nothing to reverse
+            return state;
+          }
+
+          const updatedStocks = [...state.stocks];
+          const existing = updatedStocks[existingIndex];
+          const isPack = isPackUnit(normalizedUnit);
+          const effectiveUnitsPerPack = existing.units_per_pack;
+
+          // Reverse the operation: purchase becomes subtract, sale becomes add
+          let newSmallUnitQty = existing.small_unit_quantity;
+          if (existing.small_unit_quantity !== null) {
+            if (type === 'purchase') {
+              // Reverse purchase: subtract the quantity that was added
+              const unitsToSubtract = isPack && effectiveUnitsPerPack
+                ? quantity * effectiveUnitsPerPack
+                : quantity;
+              newSmallUnitQty = Math.max(0, existing.small_unit_quantity - unitsToSubtract);
+            } else if (type === 'sale') {
+              // Reverse sale: add back the quantity that was subtracted
+              const unitsToAdd = isPack && effectiveUnitsPerPack
+                ? quantity * effectiveUnitsPerPack
+                : quantity;
+              newSmallUnitQty = existing.small_unit_quantity + unitsToAdd;
+            }
+          }
+
+          // Calculate new pack quantity from small_unit_quantity
+          const newPackQty = (newSmallUnitQty !== null && effectiveUnitsPerPack)
+            ? Math.floor(newSmallUnitQty / effectiveUnitsPerPack)
+            : (type === 'purchase' 
+                ? Math.max(0, existing.quantity - quantity) 
+                : existing.quantity + quantity);
+
+          // Create movement record for the reversal
+          const movement: StockMovement = {
+            id: generateId(),
+            stock_id: existing.id,
+            type: type === 'purchase' ? 'out' : 'in',
+            quantity,
+            reason: `Transaksi ${type === 'purchase' ? 'pembelian' : 'penjualan'} dihapus`,
+            reference_id: null,
+            created_at: now,
+          };
+
+          updatedStocks[existingIndex] = {
+            ...existing,
+            quantity: newPackQty,
+            small_unit_quantity: newSmallUnitQty,
+            updated_at: now,
+          };
+
+          return {
+            stocks: updatedStocks,
+            movements: [movement, ...state.movements],
+          };
+        });
+      },
+
       getStockByName: (name: string) => {
         const normalizedName = normalizeItemName(name);
         return get().stocks.find(s => s.normalized_name === normalizedName);
@@ -409,20 +486,33 @@ export const useStockStore = create<StockStore>()(
           movements: state.movements.filter(m => m.stock_id !== id),
         }));
 
-        // Cascade delete related transactions from TransactionStore
+        // Remove this item from transactions (don't delete entire transactions)
         // Using dynamic import to avoid circular dependency
         if (normalizedName) {
           // eslint-disable-next-line @typescript-eslint/no-require-imports
           const { useTransactionStore: transactionStore } = require('./useTransactionStore');
-          transactionStore.setState((state: { transactions: Transaction[] }) => ({
-            transactions: state.transactions.filter((t: Transaction) => {
-              // Check if any item in the transaction matches the deleted stock
-              const hasMatchingItem = t.items.some((item: TransactionItem) =>
-                normalizeItemName(item.item_name) === normalizedName
+          transactionStore.setState((state: { transactions: Transaction[] }) => {
+            const updatedTransactions = state.transactions.map((t: Transaction) => {
+              // Remove matching items from this transaction
+              const filteredItems = t.items.filter((item: TransactionItem) =>
+                normalizeItemName(item.item_name) !== normalizedName
               );
-              return !hasMatchingItem;
-            }),
-          }));
+              
+              // Recalculate total amount
+              const newTotal = filteredItems.reduce((sum, item) => sum + item.total_amount, 0);
+              
+              return {
+                ...t,
+                items: filteredItems,
+                total_amount: newTotal,
+              };
+            });
+            
+            // Only keep transactions that still have items
+            return {
+              transactions: updatedTransactions.filter(t => t.items.length > 0),
+            };
+          });
         }
       },
 

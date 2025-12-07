@@ -11,6 +11,7 @@ interface TransactionStore {
   addTransaction: (result: ParsedVoiceResult) => void;
   updateTransaction: (id: string, updates: Partial<Transaction>) => void;
   deleteTransaction: (id: string) => void;
+  removeItemFromTransaction: (transactionId: string, itemIndex: number) => void;
   getTransactionsByDate: (date: Date) => Transaction[];
   getTodayTransactions: () => Transaction[];
 
@@ -324,9 +325,72 @@ export const useTransactionStore = create<TransactionStore>()(
       },
 
       deleteTransaction: (id: string) => {
+        const { reverseStockFromTransaction } = useStockStore.getState();
+        const transaction = get().transactions.find(t => t.id === id);
+        
+        console.log('[deleteTransaction] Transaction found:', transaction);
+        
+        // Reverse stock changes for each item in the transaction
+        if (transaction && (transaction.type === 'sale' || transaction.type === 'purchase')) {
+          console.log('[deleteTransaction] Reversing stock for', transaction.items.length, 'items');
+          transaction.items.forEach(item => {
+            console.log('[deleteTransaction] Reversing item:', item.item_name, 'qty:', item.quantity, 'unit:', item.unit, 'type:', transaction.type);
+            if (item.item_name && item.quantity) {
+              reverseStockFromTransaction(
+                item.item_name,
+                item.quantity,
+                transaction.type as 'sale' | 'purchase',
+                item.unit || 'pcs'
+              );
+            }
+          });
+        } else {
+          console.log('[deleteTransaction] No reversal - transaction type:', transaction?.type);
+        }
+        
+        // Now delete the transaction
         set((state) => ({
           transactions: state.transactions.filter(t => t.id !== id),
         }));
+      },
+
+      removeItemFromTransaction: (transactionId: string, itemIndex: number) => {
+        const { reverseStockFromTransaction } = useStockStore.getState();
+        const transaction = get().transactions.find(t => t.id === transactionId);
+        
+        if (!transaction || !transaction.items[itemIndex]) return;
+        
+        const item = transaction.items[itemIndex];
+        
+        // Reverse stock for the removed item
+        if ((transaction.type === 'sale' || transaction.type === 'purchase') && item.item_name && item.quantity) {
+          reverseStockFromTransaction(
+            item.item_name,
+            item.quantity,
+            transaction.type as 'sale' | 'purchase',
+            item.unit || 'pcs'
+          );
+        }
+        
+        // Remove the item and recalculate total
+        const newItems = transaction.items.filter((_, idx) => idx !== itemIndex);
+        const newTotal = newItems.reduce((sum, i) => sum + i.total_amount, 0);
+        
+        if (newItems.length === 0) {
+          // If no items left, delete the transaction
+          set((state) => ({
+            transactions: state.transactions.filter(t => t.id !== transactionId),
+          }));
+        } else {
+          // Update transaction with remaining items
+          set((state) => ({
+            transactions: state.transactions.map(t =>
+              t.id === transactionId
+                ? { ...t, items: newItems, total_amount: newTotal }
+                : t
+            ),
+          }));
+        }
       },
 
       updateDebt: (id: string, updates: Partial<Debt>) => {

@@ -110,12 +110,42 @@ function normalizeUnitForSale(unit: string | null): string {
   return unitMap[normalized] || normalized;
 }
 
-// Enrich transactions with prices from stock (for sales)
+// Enrich transactions with prices from stock (for sales, purchases, and stock_add)
 function enrichTransactionsWithPrices(
   parsed: ParsedVoiceResult,
   getStockByName: (name: string) => ReturnType<typeof useStockStore.getState>['stocks'][number] | undefined
 ): ParsedVoiceResult {
-  if (parsed.type !== 'sale' || !parsed.transactions) return parsed;
+  // Only enrich sales, purchases, and stock_add
+  if (parsed.type !== 'sale' && parsed.type !== 'purchase' && parsed.type !== 'stock_add') return parsed;
+  
+  // For stock_add, check if stock field has item_name
+  if (parsed.type === 'stock_add') {
+    if (!parsed.stock?.item_name) return parsed;
+    
+    const existingStock = getStockByName(parsed.stock.item_name);
+    // Only enrich if modal_per_pack or modal_per_unit is not already set
+    if (existingStock && parsed.stock.modal_per_pack === null && parsed.stock.modal_per_unit === null) {
+      // Use modal price from stock for stock_add
+      const packUnits = ['dus', 'pak', 'box', 'karton', 'lusin', 'krat', 'peti'];
+      const normalizedUnit = normalizeUnitForSale(parsed.stock.unit);
+      const isPack = packUnits.includes(normalizedUnit);
+      
+      return {
+        ...parsed,
+        stock: {
+          ...parsed.stock,
+          modal_per_pack: isPack ? (existingStock.modal_per_pack ?? null) : parsed.stock.modal_per_pack,
+          modal_per_unit: existingStock.modal_per_unit ?? null,
+          sell_per_unit: existingStock.sell_per_unit ?? null,
+          sell_per_pack: isPack ? (existingStock.sell_per_pack ?? null) : parsed.stock.sell_per_pack,
+          units_per_pack: existingStock.units_per_pack ?? parsed.stock.units_per_pack,
+        },
+      };
+    }
+    return parsed;
+  }
+  
+  if (!parsed.transactions) return parsed;
 
   const packUnits = ['dus', 'pak', 'box', 'karton', 'lusin', 'krat', 'peti'];
 
@@ -130,9 +160,17 @@ function enrichTransactionsWithPrices(
 
     // Only look up price if not provided
     if (pricePerUnit === null && stock) {
-      pricePerUnit = isPack
-        ? (stock.sell_per_pack ?? stock.sell_per_unit ?? null)
-        : (stock.sell_per_unit ?? null);
+      if (parsed.type === 'sale') {
+        // For sales, use sell prices
+        pricePerUnit = isPack
+          ? (stock.sell_per_pack ?? stock.sell_per_unit ?? null)
+          : (stock.sell_per_unit ?? null);
+      } else if (parsed.type === 'purchase') {
+        // For purchases, use modal (cost) prices
+        pricePerUnit = isPack
+          ? (stock.modal_per_pack ?? stock.modal_per_unit ?? null)
+          : (stock.modal_per_unit ?? null);
+      }
     }
 
     const qty = item.quantity || 1;
