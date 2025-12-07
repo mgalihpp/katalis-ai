@@ -16,7 +16,7 @@ export function CTASection() {
                             Siap Memulai?
                         </h2>
                         <p className="text-white/80 text-sm sm:text-lg max-w-xl mx-auto mb-6 sm:mb-8">
-                            Beberapa UMKM sudah merasakan kemudahan mencatat transaksi dengan suara. Sekarang giliran Anda!
+                            Sebagian UMKM sudah merasakan kemudahan mencatat transaksi dengan suara. Sekarang giliran Anda!
                         </p>
                         <Link
                             href="/dashboard"

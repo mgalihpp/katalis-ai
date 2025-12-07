@@ -106,7 +106,7 @@ export default function AboutPage() {
                                     Kami percaya bahwa <span className="text-foreground font-semibold">teknologi harus memudahkan, bukan menyulitkan</span>. Dengan memanfaatkan kecerdasan buatan dan pengenalan suara, kami membuat pencatatan keuangan semudah berbicara.
                                 </p>
                                 <p>
-                                    Tidak perlu lagi repot menulis atau mengetik transaksi satu per satu. <span className="text-foreground font-semibold">Cukup ucapkan, dan AI akan mencatatnya untuk Anda.</span>
+                                    Tidak perlu lagi repot menulis atau mengetik transaksi satu per satu. <span className="text-foreground font-semibold">Cukup tap, ucapkan, dan konfirmasi - AI akan memahami dan mencatatnya untuk Anda.</span>
                                 </p>
                             </div>
                         </div>

@@ -35,7 +35,7 @@ export function TestimonialsSection() {
                         Kata <span className="text-gradient-primary">Mereka</span>
                     </h2>
                     <p className="text-muted-foreground text-sm sm:text-lg max-w-2xl mx-auto">
-                        Bergabung dengan ribuan pemilik UMKM yang sudah merasakan kemudahan
+                        Bergabung dengan sebagian pemilik UMKM yang sudah merasakan kemudahan
                     </p>
                 </div>
 
