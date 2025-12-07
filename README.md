@@ -89,7 +89,7 @@ Catat transaksi dengan perintah suara natural dalam Bahasa Indonesia:
 
 ## 🎥 Demo
 
-> **Video Demo:** [Link ke video demo]
+> **Video Demo:** [Link ke video demo](https://drive.google.com/file/d/1AUqVo_Q4PyD7bWOmZyDs6RfKntp1ck-F/view?usp=sharing)
 
 ### Screenshots
 
