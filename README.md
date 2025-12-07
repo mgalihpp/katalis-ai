@@ -1,7 +1,7 @@
 # 🎙️ Katalis AI - Asisten Kasir Berbasis Suara
 
 <p align="center">
-  <img src="public/logo.png" alt="Katalis AI Logo" width="120" />
+  <img src="public/og-cover.png" alt="Katalis AI cover" width="120" />
 </p>
 
 <p align="center">
@@ -170,6 +170,7 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=G-XXXXXXXXXX
 
 # UploadThing - untuk upload foto profil (opsional)
 UPLOADTHING_TOKEN=your-uploadthing-token
+UPLOADTHING_SECRET=your-uploadthing-secret
 ```
 
 ### Cara Mendapatkan API Keys:
